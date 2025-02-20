@@ -1,12 +1,13 @@
 from django.urls import path
 from .views import (
-    FinancialProfileView,
+    FinancialProfileCreateView, FinancialProfileView,
     IncomeListCreateView, IncomeDetailView,
     ExpenseListCreateView, ExpenseDetailView,
     InvestmentListCreateView, InvestmentDetailView, UserListCreateView, UserDetailView, ai_recommendations_view
 )
 
 urlpatterns = [
+    path("profile/create/", FinancialProfileCreateView.as_view(), name="financial-profile-create"),
     path('profile/<int:pk>/', FinancialProfileView.as_view(), name='financial-profile'),
     
     path('income/', IncomeListCreateView.as_view(), name='income-list'),

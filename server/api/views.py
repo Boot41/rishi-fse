@@ -7,8 +7,13 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .services.ai_advisor import get_financial_advice
 
-# Financial Profile API
-class FinancialProfileView(generics.RetrieveUpdateAPIView):
+# Financial Profile API - Create a new profile
+class FinancialProfileCreateView(generics.CreateAPIView):
+    queryset = FinancialProfile.objects.all()
+    serializer_class = FinancialProfileSerializer
+
+# Financial Profile API - Retrieve, update, or delete a profile
+class FinancialProfileView(generics.RetrieveUpdateDestroyAPIView):
     queryset = FinancialProfile.objects.all()
     serializer_class = FinancialProfileSerializer
 
