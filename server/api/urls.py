@@ -3,7 +3,7 @@ from .views import (
     FinancialProfileView,
     IncomeListCreateView, IncomeDetailView,
     ExpenseListCreateView, ExpenseDetailView,
-    InvestmentListCreateView, InvestmentDetailView, UserListCreateView, UserDetailView
+    InvestmentListCreateView, InvestmentDetailView, UserListCreateView, UserDetailView, ai_recommendations_view
 )
 
 urlpatterns = [
@@ -20,4 +20,6 @@ urlpatterns = [
 
     path('users/', UserListCreateView.as_view(), name='user-list-create'),
     path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
+
+    path('ai-recommendations/<int:user_id>/', ai_recommendations_view, name='ai-recommendations'),
 ]

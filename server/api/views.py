@@ -2,6 +2,10 @@ from rest_framework import generics
 from .models import FinancialProfile, Income, Expense, Investment
 from django.contrib.auth.models import User
 from .serializers import FinancialProfileSerializer, IncomeSerializer, ExpenseSerializer, InvestmentSerializer, UserSerializer
+import os
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .services.ai_advisor import get_financial_advice
 
 # Financial Profile API
 class FinancialProfileView(generics.RetrieveUpdateAPIView):
@@ -44,3 +48,14 @@ class UserListCreateView(generics.ListCreateAPIView):
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+@csrf_exempt
+def ai_recommendations_view(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        advice = get_financial_advice(user.id)
+        return JsonResponse({"user": user.username, "advice": advice}, status=200)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
