@@ -1,6 +1,7 @@
 from rest_framework import generics
 from .models import FinancialProfile, Income, Expense, Investment
-from .serializers import FinancialProfileSerializer, IncomeSerializer, ExpenseSerializer, InvestmentSerializer
+from django.contrib.auth.models import User
+from .serializers import FinancialProfileSerializer, IncomeSerializer, ExpenseSerializer, InvestmentSerializer, UserSerializer
 
 # Financial Profile API
 class FinancialProfileView(generics.RetrieveUpdateAPIView):
@@ -33,3 +34,13 @@ class InvestmentListCreateView(generics.ListCreateAPIView):
 class InvestmentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Investment.objects.all()
     serializer_class = InvestmentSerializer
+
+# List all users or create a new user
+class UserListCreateView(generics.ListCreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+# Retrieve, update, or delete a specific user
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer

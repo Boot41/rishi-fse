@@ -3,7 +3,7 @@ from .views import (
     FinancialProfileView,
     IncomeListCreateView, IncomeDetailView,
     ExpenseListCreateView, ExpenseDetailView,
-    InvestmentListCreateView, InvestmentDetailView
+    InvestmentListCreateView, InvestmentDetailView, UserListCreateView, UserDetailView
 )
 
 urlpatterns = [
@@ -17,4 +17,7 @@ urlpatterns = [
 
     path('investment/', InvestmentListCreateView.as_view(), name='investment-list'),
     path('investment/<int:pk>/', InvestmentDetailView.as_view(), name='investment-detail'),
+
+    path('users/', UserListCreateView.as_view(), name='user-list-create'),
+    path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
 ]
