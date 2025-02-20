@@ -54,18 +54,19 @@ def get_user_financial_data(user_id):
 
 def query_ai_for_advice(user_id):
     prompt = get_user_financial_data(user_id)
-    api_url = "https://api.groq.com/v1/chat/completions"  # Replace with actual API endpoint
+    api_url = "https://api.groq.com/openai/v1/chat/completions"  # Replace with actual API endpoint
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "gpt-4",  # Specify the AI model
+        "model": "llama-3.3-70b-versatile",
         "messages": [{"role": "system", "content": "You are a financial advisor."},
                       {"role": "user", "content": prompt}],
         "temperature": 0.7
     }
     response = requests.post(api_url, headers=headers, data=json.dumps(payload))
+    print(json.dumps(response.json(),indent=4))
     return response.json()
 
 def get_financial_advice(user_id):
