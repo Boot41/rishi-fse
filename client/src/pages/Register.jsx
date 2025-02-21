@@ -18,34 +18,28 @@ function Register() {
     e.preventDefault();
     setError("");
 
-    try {
-      const response = await fetch("/api/auth/register/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+    // Mock successful registration
+    const mockUserData = {
+      user: {
+        id: 1,
+        username: formData.username,
+        email: formData.email,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+      },
+      tokens: {
+        access: "mock_access_token",
+        refresh: "mock_refresh_token",
+      },
+    };
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Store tokens in localStorage
-        localStorage.setItem("accessToken", data.tokens.access);
-        localStorage.setItem("refreshToken", data.tokens.refresh);
-        // Store user data
-        localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/dashboard");
-      } else {
-        setError(
-          data.error || 
-          Object.values(data).flat().join(" ") || 
-          "Registration failed. Please check your information."
-        );
-      }
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-    }
+    // Store mock data
+    localStorage.setItem("accessToken", mockUserData.tokens.access);
+    localStorage.setItem("refreshToken", mockUserData.tokens.refresh);
+    localStorage.setItem("user", JSON.stringify(mockUserData.user));
+    
+    // Navigate to onboarding
+    navigate("/onboarding");
   };
 
   const handleChange = (e) => {
@@ -57,150 +51,104 @@ function Register() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full space-y-8 bg-gray-900 p-8 rounded-xl"
+        className="bg-zinc-900 p-8 rounded-xl shadow-xl w-full max-w-md"
       >
-        <div>
-          <h2 className="text-center text-3xl font-bold text-white">
-            Create Account
-          </h2>
-          <p className="mt-2 text-center text-gray-400">
-            Start your financial journey today
-          </p>
-        </div>
+        <h2 className="text-3xl font-bold mb-6 text-white">Register</h2>
         {error && (
-          <div className="bg-red-500/10 border border-red-500 text-red-500 rounded-lg p-3 text-sm">
+          <div className="bg-red-500 bg-opacity-10 border border-red-500 text-red-500 px-4 py-2 rounded mb-4">
             {error}
           </div>
         )}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="username" className="text-sm font-medium text-gray-300 block mb-2">
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                minLength={3}
-                maxLength={150}
-                value={formData.username}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md bg-gray-800 border-transparent focus:border-indigo-500 focus:bg-gray-800 focus:ring-0 text-white px-4 py-3"
-                placeholder="Choose a username"
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="text-sm font-medium text-gray-300 block mb-2">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md bg-gray-800 border-transparent focus:border-indigo-500 focus:bg-gray-800 focus:ring-0 text-white px-4 py-3"
-                placeholder="Enter your email"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="first_name"
-                className="text-sm font-medium text-gray-300 block mb-2"
-              >
-                First Name
-              </label>
-              <input
-                id="first_name"
-                name="first_name"
-                type="text"
-                required
-                minLength={2}
-                value={formData.first_name}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md bg-gray-800 border-transparent focus:border-indigo-500 focus:bg-gray-800 focus:ring-0 text-white px-4 py-3"
-                placeholder="Enter your first name"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="last_name"
-                className="text-sm font-medium text-gray-300 block mb-2"
-              >
-                Last Name
-              </label>
-              <input
-                id="last_name"
-                name="last_name"
-                type="text"
-                required
-                minLength={2}
-                value={formData.last_name}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md bg-gray-800 border-transparent focus:border-indigo-500 focus:bg-gray-800 focus:ring-0 text-white px-4 py-3"
-                placeholder="Enter your last name"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="text-sm font-medium text-gray-300 block mb-2"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md bg-gray-800 border-transparent focus:border-indigo-500 focus:bg-gray-800 focus:ring-0 text-white px-4 py-3"
-                placeholder="Create a password"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password2"
-                className="text-sm font-medium text-gray-300 block mb-2"
-              >
-                Confirm Password
-              </label>
-              <input
-                id="password2"
-                name="password2"
-                type="password"
-                required
-                value={formData.password2}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md bg-gray-800 border-transparent focus:border-indigo-500 focus:bg-gray-800 focus:ring-0 text-white px-4 py-3"
-                placeholder="Confirm your password"
-              />
-            </div>
-          </div>
-
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Create Account
-            </motion.button>
+            <label className="block text-sm font-medium text-zinc-400 mb-1">
+              Username
+            </label>
+            <input
+              type="text"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500"
+              required
+            />
           </div>
-        </form>
-
-        <p className="mt-2 text-center text-sm text-gray-400">
-          Already have an account?{" "}
-          <Link
-            to="/login"
-            className="font-medium text-indigo-500 hover:text-indigo-400"
+          <div>
+            <label className="block text-sm font-medium text-zinc-400 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-zinc-400 mb-1">
+              First Name
+            </label>
+            <input
+              type="text"
+              name="first_name"
+              value={formData.first_name}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-zinc-400 mb-1">
+              Last Name
+            </label>
+            <input
+              type="text"
+              name="last_name"
+              value={formData.last_name}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-zinc-400 mb-1">
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-zinc-400 mb-1">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              name="password2"
+              value={formData.password2}
+              onChange={handleChange}
+              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors text-white font-medium"
           >
-            Sign in
+            Register
+          </button>
+        </form>
+        <p className="mt-4 text-center text-zinc-400">
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-500 hover:text-blue-400">
+            Login
           </Link>
         </p>
       </motion.div>

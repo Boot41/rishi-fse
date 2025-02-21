@@ -1,10 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+
+# Add a unique email constraint on User
+User._meta.get_field('email')._unique = True
 
 # User Financial Profile
 class FinancialProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="financial_profile")
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="financial_profile",unique=True)
     age = models.PositiveIntegerField()
+    monthly_salary = models.IntegerField()
     risk_tolerance = models.CharField(max_length=10, choices=[("low", "Low"), ("medium", "Medium"), ("high", "High")])
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -35,18 +40,19 @@ class Expense(models.Model):
 class Investment(models.Model):
     INVESTMENT_TYPE_CHOICES = [
         ("stocks", "Stocks"),
-        ("mutual_funds", "Mutual Funds"),
         ("sip", "SIP"),
         ("fd", "Fixed Deposit"),
         ("gold", "Gold"),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="investments")
-    name = models.CharField(max_length=255)  # Stock name, Mutual Fund name, etc.
+    name = models.CharField(max_length=100)
     investment_type = models.CharField(max_length=20, choices=INVESTMENT_TYPE_CHOICES)
     amount_invested = models.DecimalField(max_digits=12, decimal_places=2)
     current_value = models.DecimalField(max_digits=12, decimal_places=2)
     date_invested = models.DateField()
+    interest_rate = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    years = models.PositiveIntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.name}: ₹{self.amount_invested}"

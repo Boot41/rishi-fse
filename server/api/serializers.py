@@ -80,17 +80,44 @@ class InvestmentSerializer(serializers.ModelSerializer):
         decimal_places=2,
         validators=[MinValueValidator(0, message="Current value cannot be negative")]
     )
-    date_invested = serializers.DateField()
-    investment_type = serializers.ChoiceField(
-        choices=Investment.INVESTMENT_TYPE_CHOICES,
-        error_messages={
-            'invalid_choice': 'Investment type must be one of: stocks, mutual_funds, sip, fd, gold'
-        }
+    interest_rate = serializers.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        required=False,
+        allow_null=True,
+        validators=[MinValueValidator(0.01, message="Interest rate must be greater than 0")]
+    )
+    years = serializers.IntegerField(
+        required=False,
+        allow_null=True,
+        validators=[MinValueValidator(1, message="Years must be at least 1")]
     )
 
     class Meta:
         model = Investment
-        fields = '__all__'
+        fields = "__all__"
+
+    def validate(self, data):
+        """Validate investment data"""
+        investment_type = data.get('investment_type')
+        interest_rate = data.get('interest_rate')
+        years = data.get('years')
+
+        errors = {}
+        if investment_type in ['sip', 'fd']:
+            if interest_rate is None:
+                errors['interest_rate'] = 'Interest rate is required for SIP and FD investments.'
+            if years is None:
+                errors['years'] = 'Number of years is required for SIP and FD investments.'
+            
+            if errors:
+                raise serializers.ValidationError(errors)
+
+        if data.get('current_value', 0) > data.get('amount_invested', 0) * 10:
+            raise serializers.ValidationError({
+                "current_value": "Current value cannot be more than 10 times the invested amount"
+            })
+        return data
 
     def validate_date_invested(self, value):
         if value > date.today():
@@ -99,15 +126,8 @@ class InvestmentSerializer(serializers.ModelSerializer):
 
     def validate_name(self, value):
         if len(value.strip()) < 2:
-            raise serializers.ValidationError("Investment name must be at least 2 characters long")
+            raise serializers.ValidationError("Name must be at least 2 characters long")
         return value.strip()
-
-    def validate(self, data):
-        if data.get('current_value', 0) > data.get('amount_invested', 0) * 10:
-            raise serializers.ValidationError({
-                "current_value": "Current value cannot be more than 10 times the invested amount"
-            })
-        return data
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(

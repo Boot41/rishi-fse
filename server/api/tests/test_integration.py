@@ -34,7 +34,8 @@ class TestUserFinancialWorkflow:
         profile_data = {
             'user': user_id,
             'age': 30,
-            'risk_tolerance': 'medium'
+            'risk_tolerance': 'medium',
+            'monthly_salary': 50000
         }
         response = client.post(reverse('financial-profile-create'), profile_data)
         assert response.status_code == status.HTTP_201_CREATED
@@ -124,7 +125,8 @@ class TestUserFinancialWorkflow:
         valid_profile = {
             'user': user_id,
             'age': 30,
-            'risk_tolerance': 'medium'
+            'risk_tolerance': 'medium',
+            'monthly_salary': 50000
         }
         response = client.post(reverse('financial-profile-create'), valid_profile)
         assert response.status_code == status.HTTP_201_CREATED

@@ -11,6 +11,8 @@ import Dashboard from "./pages/Dashboard";
 import IncomeManagement from "./pages/IncomeManagement";
 import ExpenseManagement from "./pages/ExpenseManagement";
 import InvestmentManagement from "./pages/InvestmentManagement";
+import FinancialOnboarding from "./pages/FinancialOnboarding";
+import AIChat from "./pages/AIChat";
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -27,10 +29,34 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route
+          path="/onboarding"
+          element={
+            <ProtectedRoute>
+              <FinancialOnboarding />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/onboarding/edit/:section"
+          element={
+            <ProtectedRoute>
+              <FinancialOnboarding />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ai-chat"
+          element={
+            <ProtectedRoute>
+              <AIChat />
             </ProtectedRoute>
           }
         />

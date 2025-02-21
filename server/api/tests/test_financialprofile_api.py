@@ -18,7 +18,7 @@ def auth_client(auth_user):
 
 @pytest.mark.django_db
 def test_get_financial_profile(auth_client, auth_user):
-    profile = FinancialProfile.objects.create(user=auth_user['user'], age=30, risk_tolerance="medium")
+    profile = FinancialProfile.objects.create(user=auth_user['user'], age=30, risk_tolerance="medium", monthly_salary=50000)
     
     url = reverse("financial-profile", args=[profile.id])
     response = auth_client.get(url)
@@ -26,11 +26,12 @@ def test_get_financial_profile(auth_client, auth_user):
     assert response.status_code == status.HTTP_200_OK
     assert response.data["age"] == 30
     assert response.data["risk_tolerance"] == "medium"
+    assert response.data["monthly_salary"] == 50000
 
 @pytest.mark.django_db
 def test_create_financial_profile(auth_client, auth_user):
     url = reverse("financial-profile-create")
-    data = {"user": auth_user['user'].id, "age": 25, "risk_tolerance": "high"}
+    data = {"user": auth_user['user'].id, "age": 25, "risk_tolerance": "high", "monthly_salary": 50000}
     response = auth_client.post(url, data, format="json")
     
     assert response.status_code == status.HTTP_201_CREATED
@@ -38,20 +39,21 @@ def test_create_financial_profile(auth_client, auth_user):
 
 @pytest.mark.django_db
 def test_update_financial_profile(auth_client, auth_user):
-    profile = FinancialProfile.objects.create(user=auth_user['user'], age=30, risk_tolerance="medium")   
+    profile = FinancialProfile.objects.create(user=auth_user['user'], age=30, risk_tolerance="medium", monthly_salary=50000)   
     
     url = reverse("financial-profile", args=[profile.id])
-    data = {"user": auth_user['user'].id, "age": 35, "risk_tolerance": "low"}
+    data = {"user": auth_user['user'].id, "age": 35, "risk_tolerance": "low", "monthly_salary": 60000}
     response = auth_client.put(url, data, format="json")
     
     assert response.status_code == status.HTTP_200_OK
     profile.refresh_from_db()
     assert profile.age == 35
     assert profile.risk_tolerance == "low"
+    assert profile.monthly_salary == 60000
 
 @pytest.mark.django_db
 def test_delete_financial_profile(auth_client, auth_user):
-    profile = FinancialProfile.objects.create(user=auth_user['user'], age=30, risk_tolerance="medium")
+    profile = FinancialProfile.objects.create(user=auth_user['user'], age=30, risk_tolerance="medium", monthly_salary=50000)
     
     url = reverse("financial-profile", args=[profile.id])
     response = auth_client.delete(url)
@@ -62,7 +64,7 @@ def test_delete_financial_profile(auth_client, auth_user):
 @pytest.mark.django_db
 def test_unauthorized_access(client):
     user = User.objects.create_user(username="testuser", password="testpass")
-    profile = FinancialProfile.objects.create(user=user, age=30, risk_tolerance="medium")
+    profile = FinancialProfile.objects.create(user=user, age=30, risk_tolerance="medium", monthly_salary=50000)
     
     url = reverse("financial-profile", args=[profile.id])
     response = client.get(url)
