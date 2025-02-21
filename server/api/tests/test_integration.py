@@ -73,7 +73,7 @@ class TestUserFinancialWorkflow:
         assert response.status_code == status.HTTP_201_CREATED
         
         # 7. Get AI Recommendations
-        response = client.get(reverse('ai-recommendations', args=[user_id]))
+        response = client.get(reverse('ai-insights'))
         assert response.status_code == status.HTTP_200_OK
         assert 'advice' in response.data
 

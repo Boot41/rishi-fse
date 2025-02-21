@@ -201,3 +201,13 @@ class LoginSerializer(serializers.Serializer):
         write_only=True,
         style={'input_type': 'password'}
     )
+
+class AIChatRequestSerializer(serializers.Serializer):
+    message = serializers.CharField(required=True, help_text="The message to send to the AI advisor")
+
+class AIChatResponseSerializer(serializers.Serializer):
+    response = serializers.CharField(help_text="AI advisor's response")
+    status = serializers.CharField(help_text="Status of the request")
+
+class AIInsightResponseSerializer(serializers.Serializer):
+    advice = serializers.CharField(help_text="AI generated financial insights")

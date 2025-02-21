@@ -5,10 +5,13 @@ from django.contrib.auth.models import User
 from api.models import FinancialProfile, Income, Expense, Investment
 import os
 
-
 API_KEY = os.getenv("GROQ_API_KEY")
 
+# Store conversation history (can be improved with a database cache)
+conversation_history = {}
+
 def get_user_financial_data(user_id):
+    """Generate a detailed financial profile prompt based on user data."""
     user = get_object_or_404(User, id=user_id)
     profile = FinancialProfile.objects.get(user=user)
     incomes = Income.objects.filter(user=user)
@@ -22,53 +25,70 @@ def get_user_financial_data(user_id):
         for inv in investments
     ])
 
-    prompt = f"""
-    You are an expert financial advisor specializing in the Indian market. Your task is to analyze a user's financial profile and provide **personalized** recommendations based on their income, expenses, and investments.
+    return f"""
+    You are an expert financial advisor specializing in the Indian market. Analyze this user's financial profile and provide personalized recommendations.
 
-    ### **\U0001F4CC User Profile:**
+    ### **📌 User Profile:**
     - **Age:** {profile.age}
     - **Risk Tolerance:** {profile.risk_tolerance}
 
-    ### **\U0001F4B0 Income Sources:**
+    ### **💰 Income Sources:**
     {income_details if income_details else "No income details provided."}
 
-    ### **\U0001F4B8 Expenses:**
+    ### **💸 Expenses:**
     {expense_details if expense_details else "No expense details provided."}
 
-    ### **\U0001F4C8 Investment Portfolio:**
+    ### **📈 Investment Portfolio:**
     {investment_details if investment_details else "No investment details provided."}
-
-    ### **\U0001F50D Analysis & Recommendations Needed:**
-    1️⃣ **Budget Optimization:** Identify unnecessary expenses and suggest better budgeting strategies.
-    2️⃣ **Investment Strategy:** Recommend asset allocation based on the user's risk tolerance, income, and market trends.
-    3️⃣ **Savings & Wealth Growth:** Identify opportunities for savings and ways to grow wealth efficiently.
-    4️⃣ **Risk Management:** Advise on potential financial risks and ways to mitigate them.
-    5️⃣ **Market Insights:** Provide **specific** investment suggestions (e.g., Indian stocks, mutual funds, SIPs) that align with the user’s profile.
-    6️⃣ **Past Mistakes:** If any patterns indicate **missed investment opportunities** or inefficient spending, highlight them.
-
-    ⚡ **Ensure that your advice is actionable and tailored to the user's current financial situation.**
-    🚀 **Focus on wealth-building strategies, tax-saving options, and long-term financial security.**
     """
 
-    return prompt
-
-def query_ai_for_advice(user_id):
-    prompt = get_user_financial_data(user_id)
-    api_url = "https://api.groq.com/openai/v1/chat/completions"  # Replace with actual API endpoint
+def query_ai_for_advice(user_id, user_message=None, mode="normal"):
+    """Queries AI for financial advice. Supports normal mode and chat mode."""
+    api_url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
     }
+
+    if mode == "normal":
+        # Generate financial insights
+        prompt = get_user_financial_data(user_id) + "\n\n### **💡 Provide 5 key insights about this user's finances.**"
+        messages = [{"role": "system", "content": "You are a financial advisor."},
+                    {"role": "user", "content": prompt}]
+    
+    elif mode == "chat":
+        # Maintain chat history
+        if user_id not in conversation_history:
+            conversation_history[user_id] = [
+                {"role": "system", "content": "You are a financial advisor. Answer financial questions accurately."}
+            ]
+        
+        # Append user's message to history
+        conversation_history[user_id].append({"role": "user", "content": user_message})
+
+        # Limit history length to prevent large payloads
+        conversation_history[user_id] = conversation_history[user_id][-10:]
+
+        messages = conversation_history[user_id]
+
     payload = {
         "model": "llama-3.3-70b-versatile",
-        "messages": [{"role": "system", "content": "You are a financial advisor."},
-                      {"role": "user", "content": prompt}],
+        "messages": messages,
         "temperature": 0.7
     }
-    response = requests.post(api_url, headers=headers, data=json.dumps(payload))
-    print(json.dumps(response.json(),indent=4))
-    return response.json()
 
-def get_financial_advice(user_id):
-    response = query_ai_for_advice(user_id)
-    return response.get("choices", [{}])[0].get("message", {}).get("content", "No response from AI.")
+    response = requests.post(api_url, headers=headers, data=json.dumps(payload))
+    ai_response = response.json()
+
+    # Extract AI response
+    assistant_message = ai_response.get("choices", [{}])[0].get("message", {}).get("content", "No response from AI.")
+
+    if mode == "chat":
+        # Append AI response to conversation history
+        conversation_history[user_id].append({"role": "assistant", "content": assistant_message})
+
+    return assistant_message
+
+def get_financial_advice(user_id, mode="normal", user_message=None):
+    """Handles financial insights (normal mode) or user chat (chat mode)."""
+    return query_ai_for_advice(user_id, user_message, mode)

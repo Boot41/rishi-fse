@@ -5,9 +5,10 @@ from .views import (
     IncomeListCreateView, IncomeDetailView,
     ExpenseListCreateView, ExpenseDetailView,
     InvestmentListCreateView, InvestmentDetailView,
-    UserListCreateView, UserDetailView, ai_recommendations_view,
+    UserListCreateView, UserDetailView,
     RegisterView, LoginView
 )
+from .views.ai_views import ai_recommendations_view, ai_chat_view
 
 urlpatterns = [
     # Authentication endpoints
@@ -30,5 +31,7 @@ urlpatterns = [
     path('users/', UserListCreateView.as_view(), name='user-list-create'),
     path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
 
-    path('ai-recommendations/<int:user_id>/', ai_recommendations_view, name='ai-recommendations'),
+    # AI Advisor endpoints
+    path('ai/insights/', ai_recommendations_view, name='ai-insights'),
+    path('ai/chat/', ai_chat_view, name='ai-chat'),
 ]
