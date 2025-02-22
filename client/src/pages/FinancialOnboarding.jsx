@@ -9,6 +9,8 @@ import IncomeDetails from "../components/onboarding/IncomeDetails";
 import ExpenseDetails from "../components/onboarding/ExpenseDetails";
 import InvestmentDetails from "../components/onboarding/InvestmentDetails";
 
+const API_URL = "http://localhost:8000/api";
+
 function FinancialOnboarding() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,9 +37,9 @@ function FinancialOnboarding() {
 
   const [currentStep, setCurrentStep] = useState(getInitialStep());
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState(() => {
     if (isEdit) {
-      // Initialize with edit data if in edit mode
       const initialData = {
         financial_profile: {},
         income: [],
@@ -63,7 +65,6 @@ function FinancialOnboarding() {
       return initialData;
     }
 
-    // Default initial state for new onboarding
     return {
       financial_profile: {},
       income: [],
@@ -94,7 +95,6 @@ function FinancialOnboarding() {
     const errors = {};
     if (!incomeList || incomeList.length === 0) {
       errors.general = "At least one income source is required";
-      return errors;
     }
     return errors;
   };
@@ -103,166 +103,235 @@ function FinancialOnboarding() {
     const errors = {};
     if (!expenseList || expenseList.length === 0) {
       errors.general = "At least one expense is required";
-      return errors;
     }
     return errors;
   };
 
-  const validateInvestments = (investments) => {
-    // Investments can be empty
-    return {};
+  const validateInvestments = (investmentList) => {
+    const errors = {};
+    // Investments are optional
+    return errors;
   };
 
-  const handleNext = () => {
-    let currentErrors = {};
-
-    // Validate current step
-    switch (currentStep) {
-      case 1:
-        currentErrors = validateBasicProfile(formData.financial_profile);
-        break;
-      case 2:
-        currentErrors = validateIncome(formData.income);
-        break;
-      case 3:
-        currentErrors = validateExpenses(formData.expenses);
-        break;
-      case 4:
-        currentErrors = validateInvestments(formData.investments);
-        break;
-    }
-
-    // If there are validation errors, display them and don't proceed
-    if (Object.keys(currentErrors).length > 0) {
-      setErrors(currentErrors);
-      return;
-    }
-
-    // Clear any existing errors
+  const handleSubmitStep = async () => {
     setErrors({});
+    setIsLoading(true);
+    const token = localStorage.getItem("accessToken");
 
-    if (currentStep < 4) {
-      setCurrentStep((prev) => prev + 1);
-    } else {
-      // Store the data in localStorage
-      const existingData = JSON.parse(
-        localStorage.getItem("financialData") || "{}"
-      );
-      let updatedData = { ...existingData };
+    try {
+      let validationErrors = {};
+      let endpoint = "";
+      let payload = {};
+      let method = "POST";
 
-      if (isEdit) {
-        // Update only the edited section
-        switch (section) {
-          case "profile":
-            updatedData.financial_profile = formData.financial_profile;
-            break;
-          case "income":
-            updatedData.income = formData.income;
-            break;
-          case "expenses":
-            updatedData.expenses = formData.expenses;
-            break;
-          case "investments":
-            updatedData.investments = formData.investments;
-            break;
-        }
-      } else {
-        // Save all data for new onboarding
-        updatedData = formData;
+      switch (currentStep) {
+        case 1:
+          validationErrors = validateBasicProfile(formData.financial_profile);
+          endpoint = "/profile/create/";
+          payload = formData.financial_profile;
+          break;
+        case 2:
+          validationErrors = validateIncome(formData.income);
+          endpoint = "/income/";
+          payload = formData.income;
+          break;
+        case 3:
+          validationErrors = validateExpenses(formData.expenses);
+          endpoint = "/expense/";
+          payload = formData.expenses;
+          break;
+        case 4:
+          validationErrors = validateInvestments(formData.investments);
+          endpoint = "/investment/";
+          payload = formData.investments;
+          break;
       }
 
-      localStorage.setItem("financialData", JSON.stringify(updatedData));
-      navigate("/dashboard");
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        return;
+      }
+
+      if (isEdit) {
+        method = "PUT";
+        switch (section) {
+          case "profile":
+            endpoint = `/profile/${editData.id}/`;
+            break;
+          case "income":
+            endpoint = `/income/${editData.id}/`;
+            break;
+          case "expenses":
+            endpoint = `/expense/${editData.id}/`;
+            break;
+          case "investments":
+            endpoint = `/investment/${editData.id}/`;
+            break;
+        }
+      }
+
+      // Handle arrays of data for income, expenses, and investments
+      if (currentStep > 1 && !isEdit) {
+        // For new entries, send array of items in a single request
+        const data = Array.isArray(payload) ? payload : [payload];
+        
+        // For investments, ensure optional fields are null when not required
+        if (currentStep === 4) {
+          data.forEach(item => {
+            if (!["sip", "fd"].includes(item.investment_type)) {
+              item.interest_rate = null;
+              item.years = null;
+            }
+          });
+        }
+
+        const response = await fetch(`${API_URL}${endpoint}`, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.detail || data.error || "Failed to save data");
+        }
+      } else {
+        // For profile or edit mode, send single request
+        const response = await fetch(`${API_URL}${endpoint}`, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(
+            data.detail || data.error || "Failed to save data"
+          );
+        }
+      }
+
+      if (isEdit) {
+        navigate("/dashboard");
+      } else if (currentStep < 4) {
+        setCurrentStep((prev) => prev + 1);
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      setErrors({ submit: error.message });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
-      setErrors({}); // Clear errors when going back
-    } else if (isEdit) {
-      navigate("/dashboard");
     }
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-zinc-900 p-8 rounded-xl shadow-xl w-full max-w-2xl"
-      >
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between mb-2">
-            {[1, 2, 3, 4].map((step) => (
-              <div
-                key={step}
-                className={`w-1/4 h-2 rounded-full mx-1 ${
-                  step <= currentStep ? "bg-blue-500" : "bg-zinc-700"
-                }`}
+    <div className="min-h-screen bg-black text-white">
+      <div className="container mx-auto px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-2xl mx-auto"
+        >
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">
+              {isEdit ? "Edit Financial Information" : "Financial Onboarding"}
+            </h1>
+            <p className="text-zinc-400">
+              Step {currentStep} of 4:{" "}
+              {currentStep === 1
+                ? "Basic Profile"
+                : currentStep === 2
+                ? "Income Details"
+                : currentStep === 3
+                ? "Expense Details"
+                : "Investment Details"}
+            </p>
+          </div>
+
+          {errors.submit && (
+            <div className="bg-red-500/5 border border-red-500/20 text-red-400 px-4 py-3 rounded mb-6">
+              {errors.submit}
+            </div>
+          )}
+
+          <div className="bg-zinc-900 rounded-xl p-6 mb-6">
+            {currentStep === 1 && (
+              <BasicProfile
+                data={formData.financial_profile}
+                onChange={(data) => updateFormData("financial_profile", data)}
+                errors={errors}
               />
-            ))}
+            )}
+            {currentStep === 2 && (
+              <IncomeDetails
+                data={formData.income}
+                onChange={(data) => updateFormData("income", data)}
+                errors={errors}
+              />
+            )}
+            {currentStep === 3 && (
+              <ExpenseDetails
+                data={formData.expenses}
+                onChange={(data) => updateFormData("expenses", data)}
+                errors={errors}
+              />
+            )}
+            {currentStep === 4 && (
+              <InvestmentDetails
+                data={formData.investments}
+                onChange={(data) => updateFormData("investments", data)}
+                errors={errors}
+              />
+            )}
           </div>
-          <div className="text-center text-zinc-400">
-            {isEdit ? "Edit Mode - " : ""}Step {currentStep} of 4
+
+          <div className="flex justify-between">
+            {currentStep > 1 ? (
+              <button
+                onClick={handleBack}
+                className="flex items-center px-6 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors"
+                disabled={isLoading}
+              >
+                <FiArrowLeft className="mr-2" />
+                Back
+              </button>
+            ) : (
+              <div></div>
+            )}
+            <button
+              onClick={handleSubmitStep}
+              disabled={isLoading}
+              className={`flex items-center px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors ${
+                isLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {isLoading ? (
+                "Saving..."
+              ) : currentStep === 4 || isEdit ? (
+                "Finish"
+              ) : (
+                <>
+                  Next
+                  <FiArrowRight className="ml-2" />
+                </>
+              )}
+            </button>
           </div>
-        </div>
-
-        {/* Step Content */}
-        <div className="mb-8">
-          {currentStep === 1 && (
-            <BasicProfile
-              data={formData.financial_profile}
-              updateData={(data) => updateFormData("financial_profile", data)}
-              isEdit={isEdit}
-              errors={errors}
-            />
-          )}
-          {currentStep === 2 && (
-            <IncomeDetails
-              data={formData.income}
-              updateData={(data) => updateFormData("income", data)}
-              isEdit={isEdit}
-              errors={errors}
-            />
-          )}
-          {currentStep === 3 && (
-            <ExpenseDetails
-              data={formData.expenses}
-              updateData={(data) => updateFormData("expenses", data)}
-              isEdit={isEdit}
-              errors={errors}
-            />
-          )}
-          {currentStep === 4 && (
-            <InvestmentDetails
-              data={formData.investments}
-              updateData={(data) => updateFormData("investments", data)}
-              isEdit={isEdit}
-              errors={errors}
-            />
-          )}
-        </div>
-
-        {/* Navigation Buttons */}
-        <div className="flex justify-between">
-          <button
-            onClick={handleBack}
-            className="flex items-center px-4 py-2 text-zinc-400 hover:text-white transition-colors"
-          >
-            <FiArrowLeft className="mr-2" />
-            {currentStep === 1 && isEdit ? "Cancel" : "Back"}
-          </button>
-          <button
-            onClick={handleNext}
-            className="flex items-center px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            {currentStep === 4 ? "Save" : "Next"}
-            {currentStep < 4 && <FiArrowRight className="ml-2" />}
-          </button>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }

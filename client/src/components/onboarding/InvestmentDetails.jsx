@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 const investmentTypes = ["stocks", "mutual_funds", "sip", "fd", "gold"];
 
-function InvestmentDetails({ data, updateData }) {
+function InvestmentDetails({ data, onChange, errors: propsErrors }) {
   const location = useLocation();
   const navigate = useNavigate();
   const isEditing = location.state?.isEditing;
@@ -25,17 +25,20 @@ function InvestmentDetails({ data, updateData }) {
   useEffect(() => {
     // If we're in edit mode, initialize with existing data
     if (isEditing && location.state?.investments) {
-      updateData(location.state.investments);
+      onChange(location.state.investments);
     }
-  }, [isEditing, location.state?.investments, updateData]);
+  }, [isEditing, location.state?.investments, onChange]);
 
   const handleAddInvestment = () => {
     const validationErrors = {};
-    if (!newInvestment.name.trim()) {
+    if (!newInvestment.name) {
       validationErrors.name = "Name is required";
     }
+    if (!newInvestment.investment_type) {
+      validationErrors.investment_type = "Type is required";
+    }
     if (!newInvestment.amount_invested) {
-      validationErrors.amount_invested = "Amount invested is required";
+      validationErrors.amount_invested = "Amount is required";
     }
     if (!newInvestment.current_value) {
       validationErrors.current_value = "Current value is required";
@@ -43,14 +46,14 @@ function InvestmentDetails({ data, updateData }) {
     if (!newInvestment.date_invested) {
       validationErrors.date_invested = "Date is required";
     }
+
+    // Only validate interest_rate and years for SIP and FD
     if (["sip", "fd"].includes(newInvestment.investment_type)) {
       if (!newInvestment.interest_rate) {
-        validationErrors.interest_rate =
-          "Interest rate is required for SIP and FD investments";
+        validationErrors.interest_rate = "Interest rate is required for SIP and FD";
       }
       if (!newInvestment.years) {
-        validationErrors.years =
-          "Number of years is required for SIP and FD investments";
+        validationErrors.years = "Years is required for SIP and FD";
       }
     }
 
@@ -59,7 +62,19 @@ function InvestmentDetails({ data, updateData }) {
       return;
     }
 
-    updateData([...data, { ...newInvestment }]);
+    // Prepare the investment data
+    const investmentData = {
+      ...newInvestment,
+      // Set optional fields to null if not required
+      interest_rate: ["sip", "fd"].includes(newInvestment.investment_type) 
+        ? newInvestment.interest_rate 
+        : null,
+      years: ["sip", "fd"].includes(newInvestment.investment_type) 
+        ? newInvestment.years 
+        : null
+    };
+
+    onChange([...data, investmentData]);
     setNewInvestment({
       name: "",
       investment_type: "",
@@ -69,17 +84,18 @@ function InvestmentDetails({ data, updateData }) {
       interest_rate: "",
       years: "",
     });
+    setErrors({});
   };
 
   const handleRemoveInvestment = (index) => {
     const updatedInvestments = data.filter((_, i) => i !== index);
-    updateData(updatedInvestments);
+    onChange(updatedInvestments);
   };
 
   const handleChange = (index, field, value) => {
     const newData = [...data];
     newData[index] = { ...newData[index], [field]: value };
-    updateData(newData);
+    onChange(newData);
   };
 
   const handleCancel = () => {
@@ -92,7 +108,7 @@ function InvestmentDetails({ data, updateData }) {
       navigate("/dashboard");
     } else {
       // Save investments logic (if needed)
-      updateData(data);
+      onChange(data);
       navigate("/dashboard");
     }
   };
@@ -122,6 +138,9 @@ function InvestmentDetails({ data, updateData }) {
         <h3 className="text-lg font-medium mb-4 text-zinc-300">
           Add Investment
         </h3>
+        {propsErrors?.general && (
+          <p className="text-red-500 text-sm mb-4">{propsErrors.general}</p>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <input
             type="text"

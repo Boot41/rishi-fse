@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router-dom";
 
-function IncomeDetails({ data, updateData, errors }) {
+function IncomeDetails({ data, onChange, errors: propsErrors }) {
   const location = useLocation();
   const navigate = useNavigate();
   const isEditing = location.state?.isEditing;
@@ -15,34 +15,51 @@ function IncomeDetails({ data, updateData, errors }) {
     date_received: "",
   });
 
+  const [errors, setErrors] = useState({});
+
   useEffect(() => {
     // If we're in edit mode, initialize with existing data
     if (isEditing && location.state?.incomes) {
-      updateData(location.state.incomes);
+      onChange(location.state.incomes);
     }
-  }, [isEditing, location.state?.incomes, updateData]);
+  }, [isEditing, location.state?.incomes, onChange]);
 
   const handleAddIncome = () => {
-    if (newIncome.source && newIncome.amount && newIncome.date_received) {
-      updateData([...data, { ...newIncome, amount: Number(newIncome.amount) }]);
-      setNewIncome({
-        source: "",
-        amount: "",
-        frequency: "monthly",
-        date_received: "",
-      });
+    const validationErrors = {};
+    if (!newIncome.source.trim()) {
+      validationErrors.source = "Source is required";
     }
+    if (!newIncome.amount) {
+      validationErrors.amount = "Amount is required";
+    }
+    if (!newIncome.date_received) {
+      validationErrors.date_received = "Date is required";
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    onChange([...data, { ...newIncome, amount: Number(newIncome.amount) }]);
+    setNewIncome({
+      source: "",
+      amount: "",
+      frequency: "monthly",
+      date_received: "",
+    });
+    setErrors({});
   };
 
   const handleRemoveIncome = (index) => {
     const updatedIncome = data.filter((_, i) => i !== index);
-    updateData(updatedIncome);
+    onChange(updatedIncome);
   };
 
   const handleChange = (index, field, value) => {
     const newData = [...data];
     newData[index] = { ...newData[index], [field]: value };
-    updateData(newData);
+    onChange(newData);
   };
 
   const handleCancel = () => {
@@ -76,8 +93,8 @@ function IncomeDetails({ data, updateData, errors }) {
         <h3 className="text-lg font-medium mb-4 text-zinc-300">
           Additional Income
         </h3>
-        {errors?.general && (
-          <p className="text-red-500 text-sm">{errors.general}</p>
+        {propsErrors?.general && (
+          <p className="text-red-500 text-sm">{propsErrors.general}</p>
         )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <input
@@ -89,10 +106,8 @@ function IncomeDetails({ data, updateData, errors }) {
             className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-zinc-500"
             placeholder="Source"
           />
-          {errors?.newIncome?.source && (
-            <p className="mt-1 text-sm text-red-500">
-              {errors.newIncome.source}
-            </p>
+          {errors.source && (
+            <p className="text-red-500 text-sm mt-1">{errors.source}</p>
           )}
           <input
             type="number"
@@ -102,12 +117,9 @@ function IncomeDetails({ data, updateData, errors }) {
             }
             className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-zinc-500"
             placeholder="Amount"
-            min="0"
           />
-          {errors?.newIncome?.amount && (
-            <p className="mt-1 text-sm text-red-500">
-              {errors.newIncome.amount}
-            </p>
+          {errors.amount && (
+            <p className="text-red-500 text-sm mt-1">{errors.amount}</p>
           )}
           <input
             type="date"
@@ -117,10 +129,8 @@ function IncomeDetails({ data, updateData, errors }) {
             }
             className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
           />
-          {errors?.newIncome?.date_received && (
-            <p className="mt-1 text-sm text-red-500">
-              {errors.newIncome.date_received}
-            </p>
+          {errors.date_received && (
+            <p className="text-red-500 text-sm mt-1">{errors.date_received}</p>
           )}
         </div>
         <button
@@ -150,9 +160,9 @@ function IncomeDetails({ data, updateData, errors }) {
                   className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-zinc-500"
                   placeholder="Source"
                 />
-                {errors?.items?.[index]?.source && (
+                {propsErrors?.items?.[index]?.source && (
                   <p className="mt-1 text-sm text-red-500">
-                    {errors.items[index].source}
+                    {propsErrors.items[index].source}
                   </p>
                 )}
               </div>
@@ -167,9 +177,9 @@ function IncomeDetails({ data, updateData, errors }) {
                   placeholder="Amount"
                   min="0"
                 />
-                {errors?.items?.[index]?.amount && (
+                {propsErrors?.items?.[index]?.amount && (
                   <p className="mt-1 text-sm text-red-500">
-                    {errors.items[index].amount}
+                    {propsErrors.items[index].amount}
                   </p>
                 )}
               </div>
@@ -182,9 +192,9 @@ function IncomeDetails({ data, updateData, errors }) {
                   }
                   className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
                 />
-                {errors?.items?.[index]?.date_received && (
+                {propsErrors?.items?.[index]?.date_received && (
                   <p className="mt-1 text-sm text-red-500">
-                    {errors.items[index].date_received}
+                    {propsErrors.items[index].date_received}
                   </p>
                 )}
               </div>

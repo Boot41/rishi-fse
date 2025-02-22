@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router-dom";
 
-function ExpenseDetails({ data, updateData }) {
+function ExpenseDetails({ data, onChange, errors: propsErrors }) {
   const location = useLocation();
   const navigate = useNavigate();
   const isEditing = location.state?.isEditing;
@@ -14,29 +14,46 @@ function ExpenseDetails({ data, updateData }) {
     date_spent: "",
   });
 
+  const [errors, setErrors] = useState({});
+
   useEffect(() => {
     // If we're in edit mode, initialize with existing data
     if (isEditing && location.state?.expenses) {
-      updateData(location.state.expenses);
+      onChange(location.state.expenses);
     }
-  }, [isEditing, location.state?.expenses, updateData]);
+  }, [isEditing, location.state?.expenses, onChange]);
 
   const handleAddExpense = () => {
-    if (newExpense.category && newExpense.amount && newExpense.date_spent) {
-      updateData([...data, { ...newExpense }]);
-      setNewExpense({ category: "", amount: "", date_spent: "" });
+    const validationErrors = {};
+    if (!newExpense.category) {
+      validationErrors.category = "Category is required";
     }
+    if (!newExpense.amount) {
+      validationErrors.amount = "Amount is required";
+    }
+    if (!newExpense.date_spent) {
+      validationErrors.date_spent = "Date is required";
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    onChange([...data, { ...newExpense }]);
+    setNewExpense({ category: "", amount: "", date_spent: "" });
+    setErrors({});
   };
 
   const handleRemoveExpense = (index) => {
     const updatedExpenses = data.filter((_, i) => i !== index);
-    updateData(updatedExpenses);
+    onChange(updatedExpenses);
   };
 
   const handleChange = (index, field, value) => {
     const newData = [...data];
     newData[index] = { ...newData[index], [field]: value };
-    updateData(newData);
+    onChange(newData);
   };
 
   const handleCancel = () => {
@@ -90,6 +107,9 @@ function ExpenseDetails({ data, updateData }) {
               </option>
             ))}
           </select>
+          {errors.category && (
+            <p className="text-red-500 text-sm mt-1">{errors.category}</p>
+          )}
           <input
             type="number"
             value={newExpense.amount}
@@ -99,6 +119,9 @@ function ExpenseDetails({ data, updateData }) {
             className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-zinc-500"
             placeholder="Amount"
           />
+          {errors.amount && (
+            <p className="text-red-500 text-sm mt-1">{errors.amount}</p>
+          )}
           <input
             type="date"
             value={newExpense.date_spent}
@@ -107,6 +130,9 @@ function ExpenseDetails({ data, updateData }) {
             }
             className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
           />
+          {errors.date_spent && (
+            <p className="text-red-500 text-sm mt-1">{errors.date_spent}</p>
+          )}
         </div>
         <button
           onClick={handleAddExpense}

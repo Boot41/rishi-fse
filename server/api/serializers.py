@@ -18,7 +18,8 @@ class FinancialProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FinancialProfile
-        fields = '__all__'
+        fields = ['id', 'age', 'monthly_salary', 'risk_tolerance', 'created_at']
+        read_only_fields = ['id', 'created_at']
         
     def validate(self, data):
         if data.get('age', 0) > 100:
@@ -35,7 +36,8 @@ class IncomeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Income
-        fields = '__all__'
+        fields = ['id', 'source', 'amount', 'date_received']
+        read_only_fields = ['id']
 
     def validate_date_received(self, value):
         if value > date.today():
@@ -57,7 +59,8 @@ class ExpenseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Expense
-        fields = '__all__'
+        fields = ['id', 'category', 'amount', 'date_spent']
+        read_only_fields = ['id']
 
     def validate_date_spent(self, value):
         if value > date.today():
@@ -85,39 +88,20 @@ class InvestmentSerializer(serializers.ModelSerializer):
         decimal_places=2,
         required=False,
         allow_null=True,
-        validators=[MinValueValidator(0.01, message="Interest rate must be greater than 0")]
+        validators=[MinValueValidator(0, message="Interest rate cannot be negative")]
     )
     years = serializers.IntegerField(
         required=False,
         allow_null=True,
         validators=[MinValueValidator(1, message="Years must be at least 1")]
     )
+    date_invested = serializers.DateField()
 
     class Meta:
         model = Investment
-        fields = "__all__"
-
-    def validate(self, data):
-        """Validate investment data"""
-        investment_type = data.get('investment_type')
-        interest_rate = data.get('interest_rate')
-        years = data.get('years')
-
-        errors = {}
-        if investment_type in ['sip', 'fd']:
-            if interest_rate is None:
-                errors['interest_rate'] = 'Interest rate is required for SIP and FD investments.'
-            if years is None:
-                errors['years'] = 'Number of years is required for SIP and FD investments.'
-            
-            if errors:
-                raise serializers.ValidationError(errors)
-
-        if data.get('current_value', 0) > data.get('amount_invested', 0) * 10:
-            raise serializers.ValidationError({
-                "current_value": "Current value cannot be more than 10 times the invested amount"
-            })
-        return data
+        fields = ['id', 'name', 'investment_type', 'amount_invested', 'current_value', 
+                 'date_invested', 'interest_rate', 'years']
+        read_only_fields = ['id']
 
     def validate_date_invested(self, value):
         if value > date.today():

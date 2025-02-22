@@ -12,34 +12,53 @@ function Register() {
     last_name: "",
   });
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
-    // Mock successful registration
-    const mockUserData = {
-      user: {
-        id: 1,
-        username: formData.username,
-        email: formData.email,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-      },
-      tokens: {
-        access: "mock_access_token",
-        refresh: "mock_refresh_token",
-      },
-    };
+    try {
+      // Validate passwords match
+      if (formData.password !== formData.password2) {
+        throw new Error("Passwords do not match");
+      }
 
-    // Store mock data
-    localStorage.setItem("accessToken", mockUserData.tokens.access);
-    localStorage.setItem("refreshToken", mockUserData.tokens.refresh);
-    localStorage.setItem("user", JSON.stringify(mockUserData.user));
-    
-    // Navigate to onboarding
-    navigate("/onboarding");
+      // Make API call to register endpoint
+      const response = await fetch("http://localhost:8000/api/auth/register/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail || 
+          Object.values(data)[0]?.[0] || 
+          "Registration failed. Please try again."
+        );
+      }
+
+      const { user, tokens } = data;
+
+      // Store tokens and user data
+      localStorage.setItem("accessToken", tokens.access);
+      localStorage.setItem("refreshToken", tokens.refresh);
+      localStorage.setItem("user", JSON.stringify(user));
+      
+      // Navigate to onboarding
+      navigate("/onboarding");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -55,7 +74,7 @@ function Register() {
       >
         <h2 className="text-3xl font-bold mb-6 text-white">Register</h2>
         {error && (
-          <div className="bg-red-500 bg-opacity-10 border border-red-500 text-red-500 px-4 py-2 rounded mb-4">
+          <div className="bg-red-500/5 border border-red-500/20 text-red-400 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
@@ -69,8 +88,10 @@ function Register() {
               name="username"
               value={formData.username}
               onChange={handleChange}
-              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
               required
+              minLength={3}
+              maxLength={150}
             />
           </div>
           <div>
@@ -82,7 +103,7 @@ function Register() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
               required
             />
           </div>
@@ -95,8 +116,9 @@ function Register() {
               name="first_name"
               value={formData.first_name}
               onChange={handleChange}
-              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
               required
+              minLength={2}
             />
           </div>
           <div>
@@ -108,8 +130,9 @@ function Register() {
               name="last_name"
               value={formData.last_name}
               onChange={handleChange}
-              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
               required
+              minLength={2}
             />
           </div>
           <div>
@@ -121,7 +144,7 @@ function Register() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
               required
             />
           </div>
@@ -134,23 +157,26 @@ function Register() {
               name="password2"
               value={formData.password2}
               onChange={handleChange}
-              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
               required
             />
           </div>
           <button
             type="submit"
-            className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors text-white font-medium"
+            disabled={isLoading}
+            className={`w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors ${
+              isLoading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
-            Register
+            {isLoading ? "Registering..." : "Register"}
           </button>
+          <p className="text-zinc-400 text-center mt-4">
+            Already have an account?{" "}
+            <Link to="/login" className="text-blue-500 hover:underline">
+              Login
+            </Link>
+          </p>
         </form>
-        <p className="mt-4 text-center text-zinc-400">
-          Already have an account?{" "}
-          <Link to="/login" className="text-blue-500 hover:text-blue-400">
-            Login
-          </Link>
-        </p>
       </motion.div>
     </div>
   );
