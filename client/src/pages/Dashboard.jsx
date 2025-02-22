@@ -23,48 +23,59 @@ import {
 
 function Dashboard() {
   const navigate = useNavigate();
-  const [user, setUser] = useState({
-    first_name: "John",
-  });
-  const [profile, setProfile] = useState({
-    age: 30,
-    risk_tolerance: "medium",
-  });
-  const [incomes, setIncomes] = useState([
-    { id: 1, source: "Salary", amount: 50000, date_received: "2025-02-01" },
-    {
-      id: 2,
-      source: "Freelancing",
-      amount: 15000,
-      date_received: "2025-02-15",
-    },
-  ]);
-  const [expenses, setExpenses] = useState([
-    { id: 1, category: "Rent", amount: 20000, date_spent: "2025-02-05" },
-    { id: 2, category: "Groceries", amount: 5000, date_spent: "2025-02-10" },
-  ]);
-  const [investments, setInvestments] = useState([
-    {
-      id: 1,
-      name: "ABC Mutual Fund",
-      investment_type: "mutual_funds",
-      amount_invested: 10000,
-      current_value: 12000,
-      date_invested: "2025-01-01",
-    },
-    {
-      id: 2,
-      name: "XYZ Stocks",
-      investment_type: "stocks",
-      amount_invested: 15000,
-      current_value: 18000,
-      date_invested: "2025-01-15",
-    },
-  ]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [incomes, setIncomes] = useState([]);
+  const [expenses, setExpenses] = useState([]);
+  const [investments, setInvestments] = useState([]);
 
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setIsLoading(true);
+      setError(null);
+      const token = localStorage.getItem("accessToken");
+
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      try {
+        // Fetch all user data in one call
+        const response = await fetch("http://localhost:8000/api/dashboard/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch dashboard data");
+        }
+
+        const data = await response.json();
+        setUser(data);
+        setProfile(data.financial_profile);
+        setIncomes(data.incomes);
+        setExpenses(data.expenses);
+        setInvestments(data.investments);
+
+      } catch (err) {
+        setError(err.message);
+        console.error("Error fetching dashboard data:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [navigate]);
+
+  // Calculate totals including monthly salary
   const totalIncome = incomes.reduce(
     (sum, income) => sum + parseFloat(income.amount),
-    0
+    profile ? parseFloat(profile.monthly_salary) : 0
   );
   const totalExpenses = expenses.reduce(
     (sum, expense) => sum + parseFloat(expense.amount),
@@ -102,17 +113,24 @@ function Dashboard() {
       return acc;
     }, {});
 
-    // Map investment types to more readable labels
-    const typeLabels = {
-      stocks: "Stocks",
-      mutual_funds: "Mutual Funds",
-      sip: "SIP",
-      fd: "Fixed Deposit",
-      gold: "Gold",
-    };
+    return Object.entries(grouped).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  };
 
-    return Object.entries(grouped).map(([type, value]) => ({
-      name: typeLabels[type] || type,
+  const groupIncomesBySource = (incomes, monthlySalary) => {
+    const grouped = incomes.reduce((acc, income) => {
+      const source = income.source;
+      if (!acc[source]) {
+        acc[source] = 0;
+      }
+      acc[source] += parseFloat(income.amount);
+      return acc;
+    }, { "Monthly Salary": monthlySalary || 0 });
+
+    return Object.entries(grouped).map(([name, value]) => ({
+      name,
       value,
     }));
   };
@@ -171,13 +189,17 @@ function Dashboard() {
   const [investmentsByType, setInvestmentsByType] = useState(() =>
     groupInvestmentsByType(investments)
   );
+  const [incomesBySource, setIncomesBySource] = useState(() =>
+    groupIncomesBySource(incomes, profile ? profile.monthly_salary : 0)
+  );
 
   useEffect(() => {
     // Update all charts when data changes
     setExpensesByCategory(groupExpensesByCategory(expenses));
     setInvestmentPerformance(prepareInvestmentData(investments));
     setInvestmentsByType(groupInvestmentsByType(investments));
-  }, [incomes, expenses, investments]);
+    setIncomesBySource(groupIncomesBySource(incomes, profile ? profile.monthly_salary : 0));
+  }, [incomes, expenses, investments, profile]);
 
   // Navigation handlers for edit buttons
   const handleEditProfile = () => {
@@ -215,6 +237,41 @@ function Dashboard() {
       },
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-100 p-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 p-8">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error!</strong>
+          <span className="block sm:inline"> {error}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || !profile) {
+    return (
+      <div className="min-h-screen bg-gray-100 p-8">
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">No Data!</strong>
+          <span className="block sm:inline"> Please complete your financial profile first.</span>
+          <Link to="/onboarding" className="text-blue-500 hover:text-blue-700 underline ml-2">
+            Go to Onboarding
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -387,6 +444,33 @@ function Dashboard() {
                     ))}
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Income Distribution */}
+          <div className="bg-gray-800 rounded-lg p-6 col-span-1">
+            <h3 className="text-xl font-semibold mb-4">Income Distribution</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={groupIncomesBySource(incomes, profile?.monthly_salary)}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={renderCustomizedLabel}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {groupIncomesBySource(incomes, profile?.monthly_salary).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>

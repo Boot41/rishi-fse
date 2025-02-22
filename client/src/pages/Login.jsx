@@ -15,7 +15,7 @@ function Login() {
     setError("");
 
     try {
-      const response = await fetch("/api/auth/login/", {
+      const response = await fetch("http://localhost:8000/api/auth/login/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,7 +67,10 @@ function Login() {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="username" className="text-sm font-medium text-gray-300 block mb-2">
+              <label
+                htmlFor="username"
+                className="text-sm font-medium text-gray-300 block mb-2"
+              >
                 Username
               </label>
               <input

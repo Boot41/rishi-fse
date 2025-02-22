@@ -1,13 +1,16 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
-from .views import (
-    FinancialProfileCreateView, FinancialProfileView,
-    IncomeListCreateView, IncomeDetailView,
-    ExpenseListCreateView, ExpenseDetailView,
-    InvestmentListCreateView, InvestmentDetailView,
-    UserListCreateView, UserDetailView,
-    RegisterView, LoginView
+from .views.auth_views import RegisterView, LoginView
+from .views.financial_profile_views import (
+    FinancialProfileCreateView, 
+    FinancialProfileView,
+    UserFinancialProfileView
 )
+from .views.income_views import IncomeListCreateView, IncomeDetailView
+from .views.expense_views import ExpenseListCreateView, ExpenseDetailView
+from .views.investment_views import InvestmentListCreateView, InvestmentDetailView
+from .views.user_views import UserListCreateView, UserDetailView
+from .views.dashboard_views import UserDashboardView
 from .views.ai_views import ai_recommendations_view, ai_chat_view
 
 urlpatterns = [
@@ -16,6 +19,11 @@ urlpatterns = [
     path('auth/login/', LoginView.as_view(), name='login'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
+    # Dashboard endpoint
+    path('dashboard/', UserDashboardView.as_view(), name='user-dashboard'),
+
+    # Profile endpoints
+    path('profile/', UserFinancialProfileView.as_view(), name='user-financial-profile'),
     path("profile/create/", FinancialProfileCreateView.as_view(), name="financial-profile-create"),
     path('profile/<int:pk>/', FinancialProfileView.as_view(), name='financial-profile'),
     

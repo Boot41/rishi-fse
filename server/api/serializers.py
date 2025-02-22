@@ -127,6 +127,18 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name': {'required': True, 'min_length': 2},
         }
 
+class UserDashboardSerializer(serializers.ModelSerializer):
+    financial_profile = FinancialProfileSerializer(read_only=True)
+    incomes = IncomeSerializer(many=True, read_only=True)
+    expenses = ExpenseSerializer(many=True, read_only=True)
+    investments = InvestmentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 
+                 'financial_profile', 'incomes', 'expenses', 'investments']
+        read_only_fields = ['id', 'username', 'email']
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True,

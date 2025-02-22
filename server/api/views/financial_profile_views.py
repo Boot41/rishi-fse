@@ -36,3 +36,10 @@ class FinancialProfileView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         # Get the user's profile or return 404
         return generics.get_object_or_404(FinancialProfile, user=self.request.user)
+
+class UserFinancialProfileView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = FinancialProfileSerializer
+
+    def get_object(self):
+        return FinancialProfile.objects.filter(user=self.request.user).first()
