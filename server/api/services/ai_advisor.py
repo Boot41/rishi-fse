@@ -77,9 +77,29 @@ def query_ai_for_advice(user_id, user_message=None, mode="normal", context=None)
         # Get user's financial profile and investment data
         financial_data = get_user_financial_data(user_id)
         investments = Investment.objects.filter(user=user_id)
+        
+        if not investments:
+            return {
+                "recommendations": "You currently have no investments. Here are some recommendations based on your risk profile:\n\n" +
+                "1. Start with Index Funds\nLow-risk entry point with market-matching returns.\n\n" +
+                "2. Government Bonds\nStable returns with government backing.\n\n" +
+                "3. Corporate Fixed Deposits\nHigher returns than savings with moderate risk.\n\n" +
+                "4. Blue-chip Stocks\nEstablished companies with stable growth.\n\n" +
+                "5. Balanced Mutual Funds\nDiversified portfolio with mixed risk levels."
+            }
+        
         current_investments = "\n".join([f"- {inv.name} ({inv.investment_type}): ₹{inv.amount_invested}" for inv in investments])
         
-        prompt = f"""Based on the user's financial profile and current investments:
+        # Create a dynamic intro based on current investments
+        investment_names = [f"{inv.name} ({inv.investment_type})" for inv in investments]
+        if len(investment_names) == 1:
+            investment_summary = investment_names[0]
+        elif len(investment_names) == 2:
+            investment_summary = f"{investment_names[0]} and {investment_names[1]}"
+        else:
+            investment_summary = ", ".join(investment_names[:-1]) + f", and {investment_names[-1]}"
+        
+        prompt = f"""Based on your current investments in {investment_summary}, I've analyzed your portfolio and suggested similar performing investments that align with your risk tolerance and investment goals.
 
 {current_investments}
 
@@ -87,7 +107,7 @@ def query_ai_for_advice(user_id, user_message=None, mode="normal", context=None)
 
 Provide exactly 5 investment recommendations similar to their current portfolio. Format your response exactly as follows:
 
-Brief intro line.
+Based on your current portfolio, here are some similar investment opportunities:
 
 1. Investment Name (Type)
 Expected returns and 1-2 key benefits in a single concise line.

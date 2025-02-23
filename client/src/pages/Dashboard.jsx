@@ -120,6 +120,12 @@ function Dashboard() {
   // Fetch similar investments
   useEffect(() => {
     const fetchSimilarInvestments = async () => {
+      // Don't fetch if there are no investments
+      if (!investments || investments.length === 0) {
+        setSimilarInvestments([]);
+        return;
+      }
+
       setIsLoadingSimilar(true);
       setSimilarError(null);
       const token = localStorage.getItem("accessToken");
@@ -157,7 +163,7 @@ function Dashboard() {
       }
     };
 
-    if (profile && investments.length > 0) {
+    if (profile && investments) {
       fetchSimilarInvestments();
     }
   }, [profile, investments]);
@@ -317,7 +323,7 @@ function Dashboard() {
   };
 
   const handleEditIncome = () => {
-    navigate("/onboarding/edit/income", {
+    navigate("/income", {
       state: {
         isEdit: true,
         data: incomes,
@@ -326,7 +332,7 @@ function Dashboard() {
   };
 
   const handleEditExpenses = () => {
-    navigate("/onboarding/edit/expenses", {
+    navigate("/expense", {
       state: {
         isEdit: true,
         data: expenses,
@@ -335,7 +341,7 @@ function Dashboard() {
   };
 
   const handleEditInvestments = () => {
-    navigate("/onboarding/edit/investments", {
+    navigate("/investment", {
       state: {
         isEdit: true,
         data: investments,
@@ -896,16 +902,19 @@ function Dashboard() {
                   Similar Investment Opportunities
                 </h2>
               </div>
-              <p className="text-gray-300 text-sm leading-relaxed">
-                Based on your current investments in Trident (stocks) and Motilal (SIP), 
-                I've analyzed your portfolio and suggested similar performing stocks 
-                and investments that align with your medium risk tolerance and investment goals. 
-                Here are the recommendations:
-              </p>
+              {similarInvestments?.length > 0 ? (
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Based on your current investments, here are some similar investment opportunities that align with your risk profile:
+                </p>
+              ) : (
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  No current investments. Here are some recommended investment options based on your risk profile:
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {similarInvestments?.slice(1).map((investment, index) => (
+              {similarInvestments?.slice(-5).map((investment, index) => (
                 <div
                   key={index}
                   className="bg-gray-800 rounded-lg p-6 hover:bg-gray-750 transition-colors duration-200 flex flex-col justify-between h-full"

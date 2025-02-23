@@ -60,9 +60,30 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/income" element={<IncomeManagement />} />
-        <Route path="/expense" element={<ExpenseManagement />} />
-        <Route path="/investment" element={<InvestmentManagement />} />
+        <Route 
+          path="/income" 
+          element={
+            <ProtectedRoute>
+              <IncomeManagement />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/expense" 
+          element={
+            <ProtectedRoute>
+              <ExpenseManagement />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/investment" 
+          element={
+            <ProtectedRoute>
+              <InvestmentManagement />
+            </ProtectedRoute>
+          } 
+        />
       </Routes>
     </Router>
   );
