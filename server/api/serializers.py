@@ -113,6 +113,17 @@ class InvestmentSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Name must be at least 2 characters long")
         return value.strip()
 
+    def validate(self, data):
+        if data.get('investment_type') == 'sip':
+            errors = {}
+            if not data.get('years'):
+                errors['years'] = "Years is required for SIP investments"
+            if not data.get('interest_rate'):
+                errors['interest_rate'] = "Interest rate is required for SIP investments"
+            if errors:
+                raise serializers.ValidationError(errors)
+        return data
+
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         validators=[EmailValidator(message="Enter a valid email address")]
@@ -199,7 +210,11 @@ class LoginSerializer(serializers.Serializer):
     )
 
 class AIChatRequestSerializer(serializers.Serializer):
-    message = serializers.CharField(required=True, help_text="The message to send to the AI advisor")
+    message = serializers.CharField(
+        required=True,
+        min_length=1,
+        help_text="The message to send to the AI advisor"
+    )
 
 class AIChatResponseSerializer(serializers.Serializer):
     response = serializers.CharField(help_text="AI advisor's response")

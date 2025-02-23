@@ -93,6 +93,11 @@ DATABASES = {
         'PASSWORD': 'carbon_password',
         'HOST': 'localhost',
         'PORT': '5432',
+        'ATOMIC_REQUESTS': True,  # Enable atomic requests
+        'TEST': {
+            'NAME': 'test_carbon_db',
+            'SERIALIZE': False,    # Disable serialization for faster tests
+        },
     }
 }
 

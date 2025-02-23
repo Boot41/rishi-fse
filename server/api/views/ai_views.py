@@ -8,12 +8,22 @@ from ..serializers import (
     AIChatResponseSerializer,
     AIInsightResponseSerializer
 )
+from ..models import FinancialProfile
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def ai_recommendations_view(request):
     """Get AI-generated financial insights."""
     try:
+        # Check if user has a financial profile
+        try:
+            FinancialProfile.objects.get(user=request.user)
+        except FinancialProfile.DoesNotExist:
+            return Response(
+                {"error": "Please complete your financial profile first"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         user_id = request.user.id
         advice = get_financial_advice(user_id, mode="normal")
         
@@ -36,6 +46,15 @@ def ai_recommendations_view(request):
 def ai_chat_view(request):
     """Chat with AI financial advisor."""
     try:
+        # Check if user has a financial profile
+        try:
+            FinancialProfile.objects.get(user=request.user)
+        except FinancialProfile.DoesNotExist:
+            return Response(
+                {"error": "Please complete your financial profile first"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         # Validate request data
         request_serializer = AIChatRequestSerializer(data=request.data)
         request_serializer.is_valid(raise_exception=True)
