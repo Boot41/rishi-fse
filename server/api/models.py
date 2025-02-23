@@ -56,3 +56,13 @@ class Investment(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.name}: ₹{self.amount_invested}"
+
+# Chat History
+class ChatHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    messages = models.JSONField(default=list)  # Stores the list of messages
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']

@@ -30,6 +30,9 @@ function Dashboard() {
   const [incomes, setIncomes] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [investments, setInvestments] = useState([]);
+  const [aiInsights, setAiInsights] = useState([]);
+  const [isLoadingInsights, setIsLoadingInsights] = useState(false);
+  const [insightsError, setInsightsError] = useState(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -71,6 +74,45 @@ function Dashboard() {
 
     fetchDashboardData();
   }, [navigate]);
+
+  // Fetch AI insights
+  useEffect(() => {
+    const fetchAiInsights = async () => {
+      setIsLoadingInsights(true);
+      setInsightsError(null);
+      const token = localStorage.getItem("accessToken");
+
+      try {
+        const response = await fetch("http://localhost:8000/api/ai/insights/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch AI insights");
+        }
+
+        const { advice } = await response.json();
+        // Process the advice string into separate insights
+        const insights = advice
+          .split(/\d+\.\s+/) // Split by numbered points (e.g., "1. ", "2. ")
+          .filter(text => text.trim().length > 0) // Remove empty strings
+          .map(text => text.trim()); // Clean up whitespace
+        
+        setAiInsights(insights);
+      } catch (err) {
+        setInsightsError(err.message);
+        console.error("Error fetching AI insights:", err);
+      } finally {
+        setIsLoadingInsights(false);
+      }
+    };
+
+    if (profile) {
+      fetchAiInsights();
+    }
+  }, [profile]);
 
   // Calculate totals including monthly salary
   const totalIncome = incomes.reduce(
@@ -236,6 +278,19 @@ function Dashboard() {
         data: investments,
       },
     });
+  };
+
+  // Function to process insight text
+  const processInsightText = (text) => {
+    const headingMatch = text.match(/\*\*(.*?)\*\*/);
+    if (headingMatch) {
+      const [fullMatch, heading] = headingMatch;
+      const description = text.replace(fullMatch, '').trim();
+      // Remove the colon if it's the first character of the description
+      const cleanDescription = description.startsWith(':') ? description.slice(1).trim() : description;
+      return { heading, description: cleanDescription };
+    }
+    return { heading: '', description: text };
   };
 
   if (isLoading) {
@@ -496,23 +551,139 @@ function Dashboard() {
               </ResponsiveContainer>
             </div>
           </div>
-        </div>
 
-        {/* Financial Profile Summary */}
-        <div className="bg-gray-900 rounded-xl p-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Financial Profile Summary</h2>
-            <button
-              onClick={() => navigate("/financial-onboarding")}
-              className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-            >
-              <RiEditLine className="w-5 h-5" />
-            </button>
+          {/* AI Insights Section */}
+          <div className="bg-gray-900 rounded-xl p-6 lg:col-span-2 shadow-xl overflow-hidden relative">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute inset-0 bg-repeat" style={{ 
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E")`,
+                backgroundSize: '30px 30px'
+              }}></div>
+            </div>
+
+            {/* Content */}
+            <div className="relative">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3">
+                  <svg className="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                  <div>
+                    <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">AI Financial Insights</h2>
+                    <p className="text-gray-400 text-sm">Powered by advanced financial analysis</p>
+                  </div>
+                </div>
+                {isLoadingInsights && (
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500"></div>
+                )}
+              </div>
+              
+              {insightsError ? (
+                <div className="text-red-400 p-4 rounded-lg bg-red-900/20 border border-red-700/50">
+                  <div className="flex items-center space-x-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Error loading insights: {insightsError}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {aiInsights.map((insight, index) => {
+                    const { heading, description } = processInsightText(insight);
+                    return (
+                      <div 
+                        key={index} 
+                        className="bg-gray-800/50 backdrop-blur-sm p-5 rounded-xl hover:bg-gray-800/80 transition-all duration-300 border border-gray-700/50"
+                      >
+                        <div className="flex items-start space-x-4">
+                          <div className="flex-shrink-0">
+                            <div className="relative">
+                              <div className="absolute inset-0 bg-purple-500 rounded-full blur opacity-50"></div>
+                              <span className="relative inline-flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-lg shadow-lg">
+                                {index + 1}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            {heading && (
+                              <h3 className="text-lg font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                                {heading}
+                              </h3>
+                            )}
+                            <p className="text-white text-base leading-relaxed tracking-wide">
+                              {description}
+                            </p>
+                            {/* Add relevant icon based on insight content */}
+                            {(heading + description).toLowerCase().includes('save') && (
+                              <div className="mt-2 text-purple-400 text-sm flex items-center space-x-1">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Savings Opportunity</span>
+                              </div>
+                            )}
+                            {(heading + description).toLowerCase().includes('invest') && (
+                              <div className="mt-2 text-pink-400 text-sm flex items-center space-x-1">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                </svg>
+                                <span>Investment Insight</span>
+                              </div>
+                            )}
+                            {(heading + description).toLowerCase().includes('risk') && (
+                              <div className="mt-2 text-yellow-400 text-sm flex items-center space-x-1">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Risk Assessment</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  {/* Chat with AI Button */}
+                  <div className="mt-8 flex justify-center">
+                    <button
+                      onClick={() => navigate("/ai-chat")}
+                      className="group relative inline-flex items-center justify-center px-8 py-3 overflow-hidden font-medium transition duration-300 ease-out border-2 border-purple-500 rounded-full shadow-md text-xl"
+                    >
+                      <span className="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-gradient-to-r from-purple-500 to-pink-500 group-hover:translate-x-0 ease">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
+                      </span>
+                      <span className="absolute flex items-center justify-center w-full h-full text-purple-500 transition-all duration-300 transform group-hover:translate-x-full ease">
+                        Chat with AI Advisor
+                      </span>
+                      <span className="relative invisible">Chat with AI Advisor</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-          <p className="text-md text-gray-400">Age: {profile.age}</p>
-          <p className="text-md text-gray-400">
-            Risk Tolerance: {profile.risk_tolerance}
-          </p>
+
+          {/* Financial Profile Summary */}
+          <div className="bg-gray-900 rounded-xl p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Financial Profile Summary</h2>
+              <button
+                onClick={() => navigate("/financial-onboarding")}
+                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <RiEditLine className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-md text-gray-400">Age: {profile.age}</p>
+            <p className="text-md text-gray-400">
+              Risk Tolerance: {profile.risk_tolerance}
+            </p>
+          </div>
         </div>
       </main>
     </div>

@@ -1,7 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RiSendPlaneFill, RiRobot2Line, RiUser3Line } from "react-icons/ri";
+
+// Typing animation component
+const TypingAnimation = () => (
+  <div className="flex items-start space-x-3">
+    <div className="p-2 rounded-full bg-gray-700">
+      <RiRobot2Line className="w-5 h-5" />
+    </div>
+    <div className="p-3 rounded-lg bg-gray-800 flex items-center space-x-2">
+      <motion.div
+        className="w-2 h-2 bg-gray-400 rounded-full"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [1, 0.5, 1],
+        }}
+        transition={{
+          duration: 1,
+          repeat: Infinity,
+          delay: 0,
+        }}
+      />
+      <motion.div
+        className="w-2 h-2 bg-gray-400 rounded-full"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [1, 0.5, 1],
+        }}
+        transition={{
+          duration: 1,
+          repeat: Infinity,
+          delay: 0.2,
+        }}
+      />
+      <motion.div
+        className="w-2 h-2 bg-gray-400 rounded-full"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [1, 0.5, 1],
+        }}
+        transition={{
+          duration: 1,
+          repeat: Infinity,
+          delay: 0.4,
+        }}
+      />
+    </div>
+  </div>
+);
 
 function AIChat() {
   const [messages, setMessages] = useState([
@@ -11,18 +58,84 @@ function AIChat() {
     },
   ]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  // Check if user is authenticated
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  // Keep only the last 10 messages
+  const updateMessages = (newMessage) => {
+    setMessages(prev => {
+      const updatedMessages = [...prev, newMessage];
+      return updatedMessages.slice(-10); // Keep only the last 10 messages
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
-    // Add user message
-    setMessages((prev) => [
-      ...prev,
-      { type: "user", content: input },
-      { type: "bot", content: "This is a placeholder response. The actual AI integration will be implemented later." },
-    ]);
+    const userMessage = input.trim();
     setInput("");
+    setIsLoading(true);
+
+    // Add user message immediately
+    updateMessages({ type: "user", content: userMessage });
+
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      const response = await fetch("http://localhost:8000/api/ai/chat/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ 
+          message: userMessage,
+          context: messages.slice(-3).map(msg => ({ // Send last 3 messages for context
+            role: msg.type === "user" ? "user" : "assistant",
+            content: msg.content
+          }))
+        }),
+        credentials: 'include',
+      });
+
+      if (response.status === 401) {
+        navigate("/login");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Add AI response
+      updateMessages({ type: "bot", content: data.response });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      if (error.message === "No authentication token found") {
+        navigate("/login");
+      } else {
+        updateMessages({
+          type: "bot",
+          content: "I apologize, but I'm having trouble processing your request. Please try again later.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -84,10 +197,11 @@ function AIChat() {
                       : "bg-gray-800"
                   }`}
                 >
-                  <p className="text-sm">{message.content}</p>
+                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                 </div>
               </motion.div>
             ))}
+            {isLoading && <TypingAnimation />}
           </div>
 
           {/* Input */}
@@ -99,11 +213,15 @@ function AIChat() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type your message..."
                 className="flex-1 bg-gray-800 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isLoading}
               />
               <button
                 type="submit"
-                className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`px-4 py-2 rounded-lg bg-blue-600 text-white flex items-center space-x-2 
+                  ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+                disabled={isLoading}
               >
+                <span>{isLoading ? "Sending..." : "Send"}</span>
                 <RiSendPlaneFill className="w-5 h-5" />
               </button>
             </form>
