@@ -74,17 +74,35 @@ def query_ai_for_advice(user_id, user_message=None, mode="normal", context=None)
         messages.append({"role": "user", "content": user_message})
     
     elif mode == "similar_investments":
-        # Get user's investment details
+        # Get user's financial profile and investment data
         financial_data = get_user_financial_data(user_id)
+        investments = Investment.objects.filter(user=user_id)
+        current_investments = "\n".join([f"- {inv.name} ({inv.investment_type}): ₹{inv.amount_invested}" for inv in investments])
+        
+        prompt = f"""Based on the user's financial profile and current investments:
+
+{current_investments}
+
+{financial_data}
+
+Provide exactly 5 investment recommendations similar to their current portfolio. Format your response exactly as follows:
+
+Brief intro line.
+
+1. Investment Name (Type)
+Expected returns and 1-2 key benefits in a single concise line.
+
+2. Investment Name (Type)
+Expected returns and 1-2 key benefits in a single concise line.
+
+[Continue for all 5 recommendations]
+
+Keep each recommendation's description to a single line focusing on returns and key benefits only.
+Do not include any additional text or explanations."""
+
         messages = [
-            {
-                "role": "system",
-                "content": "You are an expert investment advisor specializing in the Indian market. Based on the user's current investment portfolio, suggest similar performing stocks and investments available in the market. Focus on investments with similar risk profiles, returns, and sectors. Format your response as a list of 5 investment suggestions, each containing the name, type, expected returns, and a brief rationale."
-            },
-            {
-                "role": "user",
-                "content": financial_data + "\n\nBased on my current investments, what are 5 similar performing stocks or investments I should consider?"
-            }
+            {"role": "system", "content": "You are a financial advisor specializing in investment recommendations. Provide exactly 5 recommendations in the specified format."},
+            {"role": "user", "content": prompt}
         ]
 
     payload = {

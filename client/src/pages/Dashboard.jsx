@@ -233,15 +233,15 @@ function Dashboard() {
     }));
   };
 
-  const COLORS = ['#FF8042', '#00C49F', '#FFBB28', '#0088FE', '#8884d8'];
+  const COLORS = ['#6366f1', '#06b6d4', '#8b5cf6', '#f472b6', '#10b981'];
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-gray-900 p-3 rounded-lg border border-gray-700">
-          <p className="text-white font-semibold">{label}</p>
+        <div className="bg-gray-900/90 backdrop-blur-sm p-4 rounded-lg border border-gray-700/50 shadow-xl">
+          <p className="text-white font-semibold mb-2">{label}</p>
           {payload.map((entry, index) => (
-            <p key={index} style={{ color: entry.color }}>
+            <p key={index} className="text-sm" style={{ color: entry.color }}>
               {entry.name}: ₹{entry.value.toLocaleString()}
             </p>
           ))}
@@ -253,19 +253,34 @@ function Dashboard() {
 
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }) => {
     const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    // Increase radius to move labels further out
+    const radius = outerRadius * 1.2;
+    
+    // Calculate positions
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    
+    const textAnchor = x > cx ? 'start' : 'end';
+    const percentValue = (percent * 100).toFixed(0);
+    
+    // Return null for very small segments to avoid cluttered labels
+    if (percentValue < 3) return null;
 
     return (
       <text
-        x={x}
+        x={x + (x > cx ? 5 : -5)}
         y={y}
-        fill="white"
-        textAnchor={x > cx ? 'start' : 'end'}
+        textAnchor={textAnchor}
+        fill="#fff"
+        fontSize={14}
+        fontWeight="600"
         dominantBaseline="central"
+        style={{
+          filter: 'drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.8))',
+          textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)'
+        }}
       >
-        {`${name} (${(percent * 100).toFixed(0)}%)`}
+        {`${name} (${percentValue}%)`}
       </text>
     );
   };
@@ -387,15 +402,17 @@ function Dashboard() {
               <nav className="flex space-x-4">
                 <Link
                   to="/dashboard"
-                  className="px-3 py-2 rounded-md text-sm font-medium text-white bg-gray-800 hover:bg-gray-700"
+                  className="px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors flex items-center space-x-2"
                 >
-                  Dashboard
+                  <RiPieChartLine className="w-5 h-5" />
+                  <span>Dashboard</span>
                 </Link>
                 <Link
                   to="/ai-chat"
-                  className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                  className="px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors flex items-center space-x-2"
                 >
-                  AI Chat
+                  <RiRobot2Line className="w-5 h-5" />
+                  <span>AI Chat</span>
                 </Link>
               </nav>
             </div>
@@ -423,7 +440,7 @@ function Dashboard() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <RiMoneyDollarCircleLine className="w-6 h-6 text-green-500" />
-                <h2 className="text-xl font-semibold">Total Income</h2>
+                <h2 className="text-xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">Total Income</h2>
               </div>
               <button
                 onClick={handleEditIncome}
@@ -445,7 +462,7 @@ function Dashboard() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <RiPieChartLine className="w-6 h-6 text-red-500" />
-                <h2 className="text-xl font-semibold">Total Expenses</h2>
+                <h2 className="text-xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">Total Expenses</h2>
               </div>
               <button
                 onClick={handleEditExpenses}
@@ -467,7 +484,7 @@ function Dashboard() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <RiRobot2Line className="w-6 h-6 text-indigo-500" />
-                <h2 className="text-xl font-semibold">Investments</h2>
+                <h2 className="text-xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">Investments</h2>
               </div>
               <button
                 onClick={handleEditInvestments}
@@ -498,103 +515,243 @@ function Dashboard() {
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Investment Distribution by Type */}
-          <div className="bg-gray-900 rounded-xl p-6">
-            <h2 className="text-xl font-semibold mb-4">
+          <div className="bg-gray-900 rounded-xl p-6 shadow-lg backdrop-blur-sm border border-gray-800">
+            <h2 className="text-xl font-semibold mb-4 bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
               Investment Distribution by Type
             </h2>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
+                  <defs>
+                    {COLORS.map((color, index) => (
+                      <linearGradient key={`gradient-${index}`} id={`gradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={color} stopOpacity={1}/>
+                        <stop offset="100%" stopColor={color} stopOpacity={0.7}/>
+                      </linearGradient>
+                    ))}
+                    {/* Add drop shadow filter for text */}
+                    <filter id="shadow" x="-2" y="-2" width="200%" height="200%">
+                      <feDropShadow dx="0" dy="0" stdDeviation="2" floodColor="#000" floodOpacity="0.5"/>
+                    </filter>
+                  </defs>
                   <Pie
                     data={investmentsByType}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
                     label={renderCustomizedLabel}
-                    outerRadius={120}
-                    fill="#8884d8"
+                    outerRadius={100}
+                    innerRadius={60}
+                    paddingAngle={5}
                     dataKey="value"
                   >
                     {investmentsByType.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={`url(#gradient-${index % COLORS.length})`}
+                        stroke={COLORS[index % COLORS.length]}
+                        strokeWidth={2}
+                      />
                     ))}
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
-                  <Legend />
+                  <Legend 
+                    verticalAlign="bottom" 
+                    height={36}
+                    formatter={(value, entry) => (
+                      <span className="text-white text-sm">{value}</span>
+                    )}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Expenses Chart */}
-          <div className="bg-gray-900 rounded-xl p-6">
-            <h2 className="text-xl font-semibold mb-4">Expenses by Category</h2>
+          <div className="bg-gray-900 rounded-xl p-6 shadow-lg backdrop-blur-sm border border-gray-800">
+            <h2 className="text-xl font-semibold mb-4 bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">Expenses by Category</h2>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
+                  <defs>
+                    {COLORS.map((color, index) => (
+                      <linearGradient key={`gradient-${index}`} id={`gradient-expenses-${index}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={color} stopOpacity={1}/>
+                        <stop offset="100%" stopColor={color} stopOpacity={0.7}/>
+                      </linearGradient>
+                    ))}
+                    {/* Add drop shadow filter for text */}
+                    <filter id="shadow" x="-2" y="-2" width="200%" height="200%">
+                      <feDropShadow dx="0" dy="0" stdDeviation="2" floodColor="#000" floodOpacity="0.5"/>
+                    </filter>
+                  </defs>
                   <Pie
                     data={expensesByCategory}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
                     label={renderCustomizedLabel}
-                    outerRadius={120}
-                    fill="#8884d8"
+                    outerRadius={100}
+                    innerRadius={60}
+                    paddingAngle={5}
                     dataKey="value"
                   >
                     {expensesByCategory.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={`url(#gradient-expenses-${index % COLORS.length})`}
+                        stroke={COLORS[index % COLORS.length]}
+                        strokeWidth={2}
+                      />
                     ))}
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
-                  <Legend />
+                  <Legend 
+                    verticalAlign="bottom" 
+                    height={36}
+                    formatter={(value, entry) => (
+                      <span className="text-white text-sm">{value}</span>
+                    )}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Income Distribution */}
-          <div className="bg-gray-800 rounded-lg p-6 col-span-1">
-            <h3 className="text-xl font-semibold mb-4">Income Distribution</h3>
-            <div className="h-64">
+          <div className="bg-gray-900 rounded-xl p-6 shadow-lg backdrop-blur-sm border border-gray-800">
+            <h3 className="text-xl font-semibold mb-4 bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">Income Distribution</h3>
+            <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
+                  <defs>
+                    {COLORS.map((color, index) => (
+                      <linearGradient key={`gradient-${index}`} id={`gradient-income-${index}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={color} stopOpacity={1}/>
+                        <stop offset="100%" stopColor={color} stopOpacity={0.7}/>
+                      </linearGradient>
+                    ))}
+                    {/* Add drop shadow filter for text */}
+                    <filter id="shadow" x="-2" y="-2" width="200%" height="200%">
+                      <feDropShadow dx="0" dy="0" stdDeviation="2" floodColor="#000" floodOpacity="0.5"/>
+                    </filter>
+                  </defs>
                   <Pie
                     data={groupIncomesBySource(incomes, profile?.monthly_salary)}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
                     label={renderCustomizedLabel}
-                    outerRadius={80}
-                    fill="#8884d8"
+                    outerRadius={100}
+                    innerRadius={60}
+                    paddingAngle={5}
                     dataKey="value"
                   >
                     {groupIncomesBySource(incomes, profile?.monthly_salary).map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={`url(#gradient-income-${index % COLORS.length})`}
+                        stroke={COLORS[index % COLORS.length]}
+                        strokeWidth={2}
+                      />
                     ))}
                   </Pie>
-                  <Tooltip />
-                  <Legend />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend 
+                    verticalAlign="bottom" 
+                    height={36}
+                    formatter={(value, entry) => (
+                      <span className="text-white text-sm">{value}</span>
+                    )}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           </div>
 
+          {/* Financial Profile Summary */}
+          <div className="bg-gray-900 rounded-xl p-6 shadow-lg backdrop-blur-sm border border-gray-800">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">Financial Profile Summary</h2>
+              <button
+                onClick={() => navigate("/financial-onboarding")}
+                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center py-2 border-b border-gray-700">
+                <span className="text-gray-400">Monthly Income</span>
+                <span className="text-white font-medium">₹{profile?.monthly_salary?.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-gray-700">
+                <span className="text-gray-400">Risk Tolerance</span>
+                <span className="text-white font-medium">{profile?.risk_tolerance}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-gray-700">
+                <span className="text-gray-400">Investment Goal</span>
+                <span className="text-white font-medium">{profile?.investment_goal}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-gray-700">
+                <span className="text-gray-400">Investment Horizon</span>
+                <span className="text-white font-medium">{profile?.investment_horizon}</span>
+              </div>
+            </div>
+          </div>
+
           {/* Investment Performance Chart */}
-          <div className="bg-gray-900 rounded-xl p-6 lg:col-span-2">
-            <h2 className="text-xl font-semibold mb-4">
+          <div className="bg-gray-900 rounded-xl p-6 shadow-lg backdrop-blur-sm border border-gray-800 lg:col-span-2">
+            <h2 className="text-xl font-semibold mb-4 bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
               Investment Performance
             </h2>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={investmentPerformance}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="name" stroke="#fff" />
-                  <YAxis stroke="#fff" />
+                  <defs>
+                    <linearGradient id="colorInvested" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8884d8" stopOpacity={0.9}/>
+                      <stop offset="100%" stopColor="#8884d8" stopOpacity={0.4}/>
+                    </linearGradient>
+                    <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#82ca9d" stopOpacity={0.9}/>
+                      <stop offset="100%" stopColor="#82ca9d" stopOpacity={0.4}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.5} />
+                  <XAxis 
+                    dataKey="name" 
+                    stroke="#fff" 
+                    tick={{ fill: '#fff', fontSize: 12 }}
+                    axisLine={{ stroke: '#666' }}
+                  />
+                  <YAxis 
+                    stroke="#fff"
+                    tick={{ fill: '#fff', fontSize: 12 }}
+                    axisLine={{ stroke: '#666' }}
+                  />
                   <Tooltip content={<CustomTooltip />} />
-                  <Legend />
-                  <Bar dataKey="Amount Invested" fill="#8884d8" />
-                  <Bar dataKey="Current Value" fill="#82ca9d" />
+                  <Legend 
+                    verticalAlign="top" 
+                    height={36}
+                    formatter={(value, entry) => (
+                      <span className="text-white text-sm">{value}</span>
+                    )}
+                  />
+                  <Bar 
+                    dataKey="Amount Invested" 
+                    fill="url(#colorInvested)"
+                    radius={[4, 4, 0, 0]}
+                    barSize={30}
+                  />
+                  <Bar 
+                    dataKey="Current Value" 
+                    fill="url(#colorCurrent)"
+                    radius={[4, 4, 0, 0]}
+                    barSize={30}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -618,7 +775,7 @@ function Dashboard() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                   <div>
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">AI Financial Insights</h2>
+                    <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">AI Financial Insights</h2>
                     <p className="text-gray-400 text-sm">Powered by advanced financial analysis</p>
                   </div>
                 </div>
@@ -656,11 +813,11 @@ function Dashboard() {
                           </div>
                           <div className="flex-1">
                             {heading && (
-                              <h3 className="text-lg font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                              <h3 className="text-lg font-bold mb-2 bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
                                 {heading}
                               </h3>
                             )}
-                            <p className="text-white text-base leading-relaxed tracking-wide">
+                            <p className="text-white text-base leading-relaxed">
                               {description}
                             </p>
                             {/* Add relevant icon based on insight content */}
@@ -717,61 +874,56 @@ function Dashboard() {
           </div>
 
           {/* Similar Investments Section */}
-          <div className="bg-gray-900 rounded-xl p-6 lg:col-span-2">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-                <div>
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-transparent">Similar Investment Opportunities</h2>
-                  <p className="text-gray-400 text-sm">Based on your current portfolio</p>
-                </div>
-              </div>
-              {isLoadingSimilar && (
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-              )}
-            </div>
-
-            {similarError ? (
-              <div className="text-red-400 p-4 rounded-lg bg-red-900/20 border border-red-700/50">
-                <div className="flex items-center space-x-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Error loading similar investments: {similarError}</span>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {similarInvestments?.map((investment, index) => (
-                  <div 
-                    key={index}
-                    className="bg-gray-800/50 backdrop-blur-sm p-4 rounded-xl hover:bg-gray-800/80 transition-all duration-300 border border-gray-700/50"
+          <div className="bg-gray-900 rounded-xl p-6 shadow-lg backdrop-blur-sm border border-gray-800 lg:col-span-2">
+            <div className="mb-6">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-2 rounded-lg bg-indigo-500/10">
+                  <svg 
+                    className="w-7 h-7 text-indigo-500" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
                   >
-                    <h3 className="text-lg font-semibold text-blue-400 mb-2">{investment.name}</h3>
-                    <p className="text-gray-300 text-sm">{investment.details}</p>
-                  </div>
-                ))}
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                    />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
+                  Similar Investment Opportunities
+                </h2>
               </div>
-            )}
-          </div>
-
-          {/* Financial Profile Summary */}
-          <div className="bg-gray-900 rounded-xl p-6 mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Financial Profile Summary</h2>
-              <button
-                onClick={() => navigate("/financial-onboarding")}
-                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-              >
-                <RiEditLine className="w-5 h-5" />
-              </button>
+              <p className="text-gray-300 text-sm leading-relaxed">
+                Based on your current investments in Trident (stocks) and Motilal (SIP), 
+                I've analyzed your portfolio and suggested similar performing stocks 
+                and investments that align with your medium risk tolerance and investment goals. 
+                Here are the recommendations:
+              </p>
             </div>
-            <p className="text-md text-gray-400">Age: {profile.age}</p>
-            <p className="text-md text-gray-400">
-              Risk Tolerance: {profile.risk_tolerance}
-            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {similarInvestments?.slice(1).map((investment, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-800 rounded-lg p-6 hover:bg-gray-750 transition-colors duration-200 flex flex-col justify-between h-full"
+                >
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2 bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
+                      {investment.name.split('(')[0].trim()}
+                    </h3>
+                    <p className="text-gray-400 text-sm mb-3">
+                      ({investment.name.split('(')[1] || ''})
+                    </p>
+                  </div>
+                  <p className="text-white text-base leading-relaxed opacity-90">
+                    {investment.details}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </main>

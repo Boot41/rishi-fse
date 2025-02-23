@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { RiSendPlaneFill, RiRobot2Line, RiUser3Line } from "react-icons/ri";
+import { RiSendPlaneFill, RiRobot2Line, RiUser3Line, RiPieChartLine } from "react-icons/ri";
 
 // Typing animation component
 const TypingAnimation = () => (
@@ -149,15 +149,17 @@ function AIChat() {
               <nav className="flex space-x-4">
                 <Link
                   to="/dashboard"
-                  className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                  className="px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors flex items-center space-x-2"
                 >
-                  Dashboard
+                  <RiPieChartLine className="w-5 h-5" />
+                  <span>Dashboard</span>
                 </Link>
                 <Link
                   to="/ai-chat"
-                  className="px-3 py-2 rounded-md text-sm font-medium text-white bg-gray-800 hover:bg-gray-700"
+                  className="px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors flex items-center space-x-2"
                 >
-                  AI Chat
+                  <RiRobot2Line className="w-5 h-5" />
+                  <span>AI Chat</span>
                 </Link>
               </nav>
             </div>
