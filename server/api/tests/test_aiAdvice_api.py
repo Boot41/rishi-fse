@@ -126,3 +126,53 @@ class TestAIAdvice:
         url = reverse("ai-chat")
         response = client.post(url, {"message": "Test message"})
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    @patch("api.services.ai_advisor.query_ai_for_advice")
+    def test_ai_similar_investments(self, mock_query_ai, auth_client):
+        # Setup API response mock
+        expected_recommendations = "1. HDFC Bank (Banking): Similar risk profile to your current investments\n2. Infosys (Technology): Strong growth potential with moderate risk\n3. Asian Paints (Manufacturing): Consistent performer with good returns\n4. SBI Bluechip Fund (Mutual Fund): Balanced portfolio similar to your risk appetite\n5. Kotak Bond Fund (Debt Fund): Conservative option for portfolio diversification"
+        mock_query_ai.return_value = expected_recommendations
+        
+        url = reverse("ai-similar-investments")
+        response = auth_client.get(url)
+        
+        assert response.status_code == status.HTTP_200_OK
+        assert "recommendations" in response.json()
+        assert response.json()["recommendations"] == expected_recommendations
+        
+        # Verify API call was made with correct data
+        mock_query_ai.assert_called_once_with(
+            auth_client._credentials['user_id'],
+            None,  # user_message
+            "similar_investments",  # mode
+            None  # context
+        )
+
+    @patch("api.services.ai_advisor.query_ai_for_advice")
+    def test_ai_similar_investments_no_profile(self, mock_query_ai, db):
+        # Create a user without financial profile
+        user_data = create_test_user()
+        client = APIClient()
+        client.force_authenticate(user=user_data['user'])
+        
+        url = reverse("ai-similar-investments")
+        response = client.get(url)
+        
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "error" in response.json()
+        assert response.json()["error"] == "Please complete your financial profile first"
+        
+        # Verify no API call was made
+        mock_query_ai.assert_not_called()
+
+    @patch("api.services.ai_advisor.query_ai_for_advice")
+    def test_ai_similar_investments_error(self, mock_query_ai, auth_client):
+        # Setup API error mock
+        mock_query_ai.side_effect = Exception("Failed to get investment recommendations")
+        
+        url = reverse("ai-similar-investments")
+        response = auth_client.get(url)
+        
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "error" in response.json()
+        assert response.json()["error"] == "Failed to get investment recommendations"

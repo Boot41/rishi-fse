@@ -222,3 +222,6 @@ class AIChatResponseSerializer(serializers.Serializer):
 
 class AIInsightResponseSerializer(serializers.Serializer):
     advice = serializers.CharField(help_text="AI generated financial insights")
+
+class AISimilarInvestmentsResponseSerializer(serializers.Serializer):
+    recommendations = serializers.CharField(help_text="AI generated similar investment recommendations")

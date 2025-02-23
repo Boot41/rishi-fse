@@ -6,7 +6,8 @@ from ..services.ai_advisor import get_financial_advice
 from ..serializers import (
     AIChatRequestSerializer,
     AIChatResponseSerializer,
-    AIInsightResponseSerializer
+    AIInsightResponseSerializer,
+    AISimilarInvestmentsResponseSerializer
 )
 from ..models import FinancialProfile
 
@@ -75,6 +76,37 @@ def ai_chat_view(request):
         })
         response_serializer.is_valid(raise_exception=True)
         return Response(response_serializer.data)
+    except serializers.ValidationError as e:
+        return Response(
+            {"error": e.detail},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    except Exception as e:
+        return Response(
+            {"error": str(e)}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def ai_similar_investments_view(request):
+    """Get AI-generated similar investment recommendations."""
+    try:
+        # Check if user has a financial profile
+        try:
+            FinancialProfile.objects.get(user=request.user)
+        except FinancialProfile.DoesNotExist:
+            return Response(
+                {"error": "Please complete your financial profile first"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user_id = request.user.id
+        recommendations = get_financial_advice(user_id, mode="similar_investments")
+        
+        serializer = AISimilarInvestmentsResponseSerializer(data={"recommendations": recommendations})
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data)
     except serializers.ValidationError as e:
         return Response(
             {"error": e.detail},

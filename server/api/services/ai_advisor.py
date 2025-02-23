@@ -41,7 +41,7 @@ def get_user_financial_data(user_id):
     """
 
 def query_ai_for_advice(user_id, user_message=None, mode="normal", context=None):
-    """Queries AI for financial advice. Supports normal mode and chat mode."""
+    """Queries AI for financial advice. Supports normal mode, chat mode, and similar investments mode."""
     api_url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -72,6 +72,20 @@ def query_ai_for_advice(user_id, user_message=None, mode="normal", context=None)
             
         # Add current user message
         messages.append({"role": "user", "content": user_message})
+    
+    elif mode == "similar_investments":
+        # Get user's investment details
+        financial_data = get_user_financial_data(user_id)
+        messages = [
+            {
+                "role": "system",
+                "content": "You are an expert investment advisor specializing in the Indian market. Based on the user's current investment portfolio, suggest similar performing stocks and investments available in the market. Focus on investments with similar risk profiles, returns, and sectors. Format your response as a list of 5 investment suggestions, each containing the name, type, expected returns, and a brief rationale."
+            },
+            {
+                "role": "user",
+                "content": financial_data + "\n\nBased on my current investments, what are 5 similar performing stocks or investments I should consider?"
+            }
+        ]
 
     payload = {
         "model": "llama-3.3-70b-versatile",

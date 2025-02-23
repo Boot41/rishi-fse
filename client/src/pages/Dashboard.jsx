@@ -33,6 +33,9 @@ function Dashboard() {
   const [aiInsights, setAiInsights] = useState([]);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
   const [insightsError, setInsightsError] = useState(null);
+  const [similarInvestments, setSimilarInvestments] = useState(null);
+  const [isLoadingSimilar, setIsLoadingSimilar] = useState(false);
+  const [similarError, setSimilarError] = useState(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -113,6 +116,51 @@ function Dashboard() {
       fetchAiInsights();
     }
   }, [profile]);
+
+  // Fetch similar investments
+  useEffect(() => {
+    const fetchSimilarInvestments = async () => {
+      setIsLoadingSimilar(true);
+      setSimilarError(null);
+      const token = localStorage.getItem("accessToken");
+
+      try {
+        const response = await fetch("http://localhost:8000/api/ai/similar-investments/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch similar investments");
+        }
+
+        const { recommendations } = await response.json();
+        // Process the recommendations string into an array
+        const recommendationsList = recommendations
+          .split(/\d+\.\s+/) // Split by numbered points (e.g., "1. ", "2. ")
+          .filter(text => text.trim().length > 0) // Remove empty strings
+          .map(text => {
+            const [name, ...details] = text.split(':');
+            return {
+              name: name.trim().replace(/\*+/g, ''), // Remove all asterisks from the name
+              details: details.join(':').trim()
+            };
+          });
+        
+        setSimilarInvestments(recommendationsList);
+      } catch (err) {
+        setSimilarError(err.message);
+        console.error("Error fetching similar investments:", err);
+      } finally {
+        setIsLoadingSimilar(false);
+      }
+    };
+
+    if (profile && investments.length > 0) {
+      fetchSimilarInvestments();
+    }
+  }, [profile, investments]);
 
   // Calculate totals including monthly salary
   const totalIncome = incomes.reduce(
@@ -666,6 +714,47 @@ function Dashboard() {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Similar Investments Section */}
+          <div className="bg-gray-900 rounded-xl p-6 lg:col-span-2">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                <div>
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-transparent">Similar Investment Opportunities</h2>
+                  <p className="text-gray-400 text-sm">Based on your current portfolio</p>
+                </div>
+              </div>
+              {isLoadingSimilar && (
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+              )}
+            </div>
+
+            {similarError ? (
+              <div className="text-red-400 p-4 rounded-lg bg-red-900/20 border border-red-700/50">
+                <div className="flex items-center space-x-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Error loading similar investments: {similarError}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {similarInvestments?.map((investment, index) => (
+                  <div 
+                    key={index}
+                    className="bg-gray-800/50 backdrop-blur-sm p-4 rounded-xl hover:bg-gray-800/80 transition-all duration-300 border border-gray-700/50"
+                  >
+                    <h3 className="text-lg font-semibold text-blue-400 mb-2">{investment.name}</h3>
+                    <p className="text-gray-300 text-sm">{investment.details}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Financial Profile Summary */}

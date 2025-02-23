@@ -11,7 +11,7 @@ from .views.expense_views import ExpenseListCreateView, ExpenseDetailView
 from .views.investment_views import InvestmentListCreateView, InvestmentDetailView
 from .views.user_views import UserListCreateView, UserDetailView
 from .views.dashboard_views import UserDashboardView
-from .views.ai_views import ai_recommendations_view, ai_chat_view
+from .views.ai_views import ai_recommendations_view, ai_chat_view, ai_similar_investments_view
 
 urlpatterns = [
     # Authentication endpoints
@@ -42,4 +42,5 @@ urlpatterns = [
     # AI Advisor endpoints
     path('ai/insights/', ai_recommendations_view, name='ai-insights'),
     path('ai/chat/', ai_chat_view, name='ai-chat'),
+    path('ai/similar-investments/', ai_similar_investments_view, name='ai-similar-investments'),
 ]
