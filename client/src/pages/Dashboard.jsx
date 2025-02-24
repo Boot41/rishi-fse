@@ -504,6 +504,21 @@ function Dashboard() {
               ₹{totalInvestments.toFixed(2)}
             </p>
           </motion.div>
+
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            className="bg-gray-900 rounded-xl p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <RiMoneyDollarCircleLine className="w-6 h-6 text-blue-500" />
+                <h2 className="text-xl font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">Monthly Savings</h2>
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-blue-500">
+              ₹{profile?.monthly_savings?.toFixed(2) || "0"}
+            </p>
+          </motion.div>
         </div>
 
         {/* Profile Edit Button */}

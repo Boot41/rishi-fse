@@ -88,6 +88,12 @@ function FinancialOnboarding() {
     if (!profile.monthly_salary || profile.monthly_salary <= 0) {
       errors.monthly_salary = "Monthly salary must be greater than 0";
     }
+    if (!profile.monthly_savings || profile.monthly_savings < 0) {
+      errors.monthly_savings = "Monthly savings must be 0 or greater";
+    }
+    if (profile.monthly_savings > profile.monthly_salary) {
+      errors.monthly_savings = "Monthly savings cannot be greater than monthly salary";
+    }
     return errors;
   };
 

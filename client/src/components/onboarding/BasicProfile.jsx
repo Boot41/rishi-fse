@@ -17,7 +17,7 @@ function BasicProfile({ data, onChange, errors }) {
   const handleChange = (field, value) => {
     onChange({
       ...data,
-      [field]: field === 'monthly_salary' || field === 'age' ? Number(value) : value
+      [field]: field === 'monthly_salary' || field === 'age' || field === 'monthly_savings' ? Number(value) : value
     });
   };
 
@@ -100,6 +100,24 @@ function BasicProfile({ data, onChange, errors }) {
           />
           {errors?.monthly_salary && (
             <p className="mt-1 text-sm text-red-400">{errors.monthly_salary}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-zinc-300 mb-2">
+            Monthly Savings
+          </label>
+          <input
+            type="number"
+            name="monthly_savings"
+            value={data.monthly_savings || ''}
+            onChange={(e) => handleChange('monthly_savings', e.target.value)}
+            min="0"
+            className="w-full px-4 py-2 bg-zinc-700 border border-zinc-600 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-zinc-400"
+            placeholder="Enter your monthly savings"
+          />
+          {errors?.monthly_savings && (
+            <p className="mt-1 text-sm text-red-400">{errors.monthly_savings}</p>
           )}
         </div>
       </div>
