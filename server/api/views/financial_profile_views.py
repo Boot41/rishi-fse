@@ -1,8 +1,11 @@
+import logging
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from ..models import FinancialProfile
 from ..serializers import FinancialProfileSerializer
+
+logger = logging.getLogger(__name__)
 
 class FinancialProfileCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
@@ -10,18 +13,24 @@ class FinancialProfileCreateView(generics.CreateAPIView):
     serializer_class = FinancialProfileSerializer
 
     def create(self, request, *args, **kwargs):
-        # Check if user already has a profile
+        logger.info(f"FinancialProfileCreateView: Received request from user {request.user.id}")
+
         if FinancialProfile.objects.filter(user=request.user).exists():
+            logger.warning(f"User {request.user.id} attempted to create a duplicate financial profile.")
             return Response(
                 {'error': 'You already have a financial profile.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        if serializer.is_valid():
+            logger.info(f"FinancialProfileCreateView: Validation successful for user {request.user.id}")
+            self.perform_create(serializer)
+            logger.info(f"FinancialProfile created for user {request.user.id}")
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        logger.error(f"FinancialProfileCreateView: Validation failed for user {request.user.id}, errors: {serializer.errors}")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -34,7 +43,7 @@ class FinancialProfileView(generics.RetrieveUpdateDestroyAPIView):
         return FinancialProfile.objects.filter(user=self.request.user)
 
     def get_object(self):
-        # Get the user's profile or return 404
+        logger.info(f"FinancialProfileView: Fetching financial profile for user {self.request.user.id}")
         return generics.get_object_or_404(FinancialProfile, user=self.request.user)
 
 class UserFinancialProfileView(generics.RetrieveAPIView):
@@ -42,4 +51,5 @@ class UserFinancialProfileView(generics.RetrieveAPIView):
     serializer_class = FinancialProfileSerializer
 
     def get_object(self):
+        logger.info(f"UserFinancialProfileView: Fetching financial profile for user {self.request.user.id}")
         return FinancialProfile.objects.filter(user=self.request.user).first()
