@@ -3773,3 +3773,627 @@ WARNING 2025-02-24 07:11:08,737 log Bad Request: /api/investment/449/
 INFO 2025-02-24 07:11:08,795 investment_views InvestmentDetailView: Delete request for investment 450 by user 1687
 INFO 2025-02-24 07:11:08,795 investment_views InvestmentDetailView: Fetching specific investment for user 1687
 WARNING 2025-02-24 07:11:08,864 log Unauthorized: /api/investment/
+INFO 2025-02-24 07:15:54,778 ai_views User 1689 requested AI recommendations.
+INFO 2025-02-24 07:15:54,779 ai_views AI recommendations generated for user 1689.
+INFO 2025-02-24 07:15:54,834 ai_views User 1690 initiated AI chat.
+INFO 2025-02-24 07:15:54,836 ai_views AI chat response sent to user 1690.
+INFO 2025-02-24 07:15:54,889 ai_views User 1691 initiated AI chat.
+ERROR 2025-02-24 07:15:54,890 ai_views Validation error: {'message': [ErrorDetail(string='This field is required.', code='required')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/ai_views.py", line 62, in ai_chat_view
+    request_serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'message': [ErrorDetail(string='This field is required.', code='required')]}
+WARNING 2025-02-24 07:15:54,891 log Bad Request: /api/ai/chat/
+INFO 2025-02-24 07:15:54,946 ai_views User 1692 initiated AI chat.
+ERROR 2025-02-24 07:15:54,947 ai_views Validation error: {'message': [ErrorDetail(string='This field may not be blank.', code='blank')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/ai_views.py", line 62, in ai_chat_view
+    request_serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'message': [ErrorDetail(string='This field may not be blank.', code='blank')]}
+WARNING 2025-02-24 07:15:54,947 log Bad Request: /api/ai/chat/
+WARNING 2025-02-24 07:15:54,951 log Unauthorized: /api/ai/insights/
+WARNING 2025-02-24 07:15:54,955 log Unauthorized: /api/ai/chat/
+INFO 2025-02-24 07:15:55,007 ai_views User 1693 requested similar investments.
+INFO 2025-02-24 07:15:55,007 ai_views Similar investment recommendations generated for user 1693.
+INFO 2025-02-24 07:15:55,071 ai_views User 1694 requested similar investments.
+WARNING 2025-02-24 07:15:55,072 ai_views User 1694 has no financial profile.
+WARNING 2025-02-24 07:15:55,072 log Bad Request: /api/ai/similar-investments/
+INFO 2025-02-24 07:15:55,142 ai_views User 1695 requested similar investments.
+CRITICAL 2025-02-24 07:15:55,143 ai_views Unexpected error in ai_similar_investments_view: Failed to get investment recommendations
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/ai_views.py", line 98, in ai_similar_investments_view
+    recommendations = get_financial_advice(request.user.id, mode="similar_investments")
+  File "/home/rishi/Desktop/AIPOC/server/api/services/ai_advisor.py", line 142, in get_financial_advice
+    return query_ai_for_advice(user_id, user_message, mode, context)
+  File "/usr/lib/python3.10/unittest/mock.py", line 1114, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/usr/lib/python3.10/unittest/mock.py", line 1118, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/usr/lib/python3.10/unittest/mock.py", line 1173, in _execute_mock_call
+    raise effect
+Exception: Failed to get investment recommendations
+WARNING 2025-02-24 07:15:55,144 log Bad Request: /api/ai/similar-investments/
+ERROR 2025-02-24 07:15:55,148 auth_views Login error: {'password': [ErrorDetail(string='This field is required.', code='required')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 61, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'password': [ErrorDetail(string='This field is required.', code='required')]}
+WARNING 2025-02-24 07:15:55,149 log Bad Request: /api/auth/login/
+ERROR 2025-02-24 07:15:55,150 auth_views Login error: {'username': [ErrorDetail(string='This field is required.', code='required')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 61, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'username': [ErrorDetail(string='This field is required.', code='required')]}
+WARNING 2025-02-24 07:15:55,150 log Bad Request: /api/auth/login/
+INFO 2025-02-24 07:15:55,280 auth_views User logged in: testuser (ID: 1696)
+WARNING 2025-02-24 07:15:55,379 auth_views Failed login attempt for username: testuser
+WARNING 2025-02-24 07:15:55,380 log Unauthorized: /api/auth/login/
+INFO 2025-02-24 07:15:55,494 auth_views User logged in: testuser (ID: 1698)
+WARNING 2025-02-24 07:15:55,500 auth_views Failed login attempt for username: wronguser
+WARNING 2025-02-24 07:15:55,500 log Unauthorized: /api/auth/login/
+INFO 2025-02-24 07:15:55,562 auth_views New user registered: testuser (ID: 1699)
+INFO 2025-02-24 07:15:55,620 auth_views New user registered: testuser (ID: 1700)
+ERROR 2025-02-24 07:15:55,626 auth_views User registration failed: {'email': [ErrorDetail(string='A user with that email already exists.', code='invalid')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'email': [ErrorDetail(string='A user with that email already exists.', code='invalid')]}
+WARNING 2025-02-24 07:15:55,626 log Bad Request: /api/auth/register/
+INFO 2025-02-24 07:15:55,681 auth_views New user registered: testuser (ID: 1701)
+ERROR 2025-02-24 07:15:55,685 auth_views User registration failed: {'username': [ErrorDetail(string='A user with that username already exists.', code='unique')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'username': [ErrorDetail(string='A user with that username already exists.', code='unique')]}
+WARNING 2025-02-24 07:15:55,685 log Bad Request: /api/auth/register/
+ERROR 2025-02-24 07:15:55,691 auth_views User registration failed: {'email': [ErrorDetail(string='Enter a valid email address', code='invalid'), ErrorDetail(string='Enter a valid email address.', code='invalid')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'email': [ErrorDetail(string='Enter a valid email address', code='invalid'), ErrorDetail(string='Enter a valid email address.', code='invalid')]}
+WARNING 2025-02-24 07:15:55,692 log Bad Request: /api/auth/register/
+ERROR 2025-02-24 07:15:55,697 auth_views User registration failed: {'password': [ErrorDetail(string="Password fields didn't match.", code='invalid')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'password': [ErrorDetail(string="Password fields didn't match.", code='invalid')]}
+WARNING 2025-02-24 07:15:55,698 log Bad Request: /api/auth/register/
+ERROR 2025-02-24 07:15:55,702 auth_views User registration failed: {'email': [ErrorDetail(string='This field is required.', code='required')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'email': [ErrorDetail(string='This field is required.', code='required')]}
+WARNING 2025-02-24 07:15:55,702 log Bad Request: /api/auth/register/
+ERROR 2025-02-24 07:15:55,707 auth_views User registration failed: {'password': [ErrorDetail(string='This password is too short. It must contain at least 10 characters.', code='password_too_short')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'password': [ErrorDetail(string='This password is too short. It must contain at least 10 characters.', code='password_too_short')]}
+WARNING 2025-02-24 07:15:55,707 log Bad Request: /api/auth/register/
+WARNING 2025-02-24 07:15:55,790 log Unauthorized: /api/dashboard/
+INFO 2025-02-24 07:15:56,026 expense_views ExpenseListCreateView: Fetching expenses for user 1705
+INFO 2025-02-24 07:15:56,100 expense_views ExpenseListCreateView: Received expense creation request from user 1706
+INFO 2025-02-24 07:15:56,102 expense_views ExpenseListCreateView: Expense 307 created by user 1706
+INFO 2025-02-24 07:15:56,185 expense_views ExpenseDetailView: Fetching specific expense for user 1707
+INFO 2025-02-24 07:15:56,252 expense_views ExpenseDetailView: Update request for expense 309 by user 1708
+INFO 2025-02-24 07:15:56,252 expense_views ExpenseDetailView: Fetching specific expense for user 1708
+INFO 2025-02-24 07:15:56,320 expense_views ExpenseDetailView: Delete request for expense 310 by user 1709
+INFO 2025-02-24 07:15:56,320 expense_views ExpenseDetailView: Fetching specific expense for user 1709
+WARNING 2025-02-24 07:15:56,386 log Unauthorized: /api/expense/
+INFO 2025-02-24 07:15:56,453 financial_profile_views FinancialProfileView: Fetching financial profile for user 1711
+INFO 2025-02-24 07:15:56,521 financial_profile_views FinancialProfileCreateView: Received request from user 1712
+INFO 2025-02-24 07:15:56,522 financial_profile_views FinancialProfileCreateView: Validation successful for user 1712
+INFO 2025-02-24 07:15:56,523 financial_profile_views FinancialProfile created for user 1712
+INFO 2025-02-24 07:15:56,588 financial_profile_views FinancialProfileView: Fetching financial profile for user 1713
+INFO 2025-02-24 07:15:56,664 financial_profile_views FinancialProfileView: Fetching financial profile for user 1714
+WARNING 2025-02-24 07:15:56,735 log Unauthorized: /api/profile/498/
+INFO 2025-02-24 07:15:56,811 income_views IncomeListCreateView: Fetching incomes for user 1716
+INFO 2025-02-24 07:15:56,886 income_views IncomeListCreateView: Received income creation request from user 1717
+INFO 2025-02-24 07:15:56,887 income_views IncomeListCreateView: Income 341 created by user 1717
+INFO 2025-02-24 07:15:56,966 income_views IncomeDetailView: Fetching specific income for user 1718
+INFO 2025-02-24 07:15:57,036 income_views IncomeDetailView: Update request for income 343 by user 1719
+INFO 2025-02-24 07:15:57,037 income_views IncomeDetailView: Fetching specific income for user 1719
+INFO 2025-02-24 07:15:57,103 income_views IncomeDetailView: Delete request for income 344 by user 1720
+INFO 2025-02-24 07:15:57,103 income_views IncomeDetailView: Fetching specific income for user 1720
+WARNING 2025-02-24 07:15:57,183 log Unauthorized: /api/income/
+INFO 2025-02-24 07:15:57,257 auth_views New user registered: testuser (ID: 1722)
+INFO 2025-02-24 07:15:57,261 financial_profile_views FinancialProfileCreateView: Received request from user 1722
+INFO 2025-02-24 07:15:57,264 financial_profile_views FinancialProfileCreateView: Validation successful for user 1722
+INFO 2025-02-24 07:15:57,266 financial_profile_views FinancialProfile created for user 1722
+INFO 2025-02-24 07:15:57,271 income_views IncomeListCreateView: Received income creation request from user 1722
+INFO 2025-02-24 07:15:57,274 income_views IncomeListCreateView: Income 346 created by user 1722
+INFO 2025-02-24 07:15:57,277 expense_views ExpenseListCreateView: Received expense creation request from user 1722
+INFO 2025-02-24 07:15:57,280 expense_views ExpenseListCreateView: Expense 312 created by user 1722
+INFO 2025-02-24 07:15:57,286 investment_views InvestmentListCreateView: Received investment creation request from user 1722
+INFO 2025-02-24 07:15:57,289 investment_views InvestmentListCreateView: Investment 455 created by user 1722
+INFO 2025-02-24 07:15:57,289 investment_views InvestmentListCreateView: Investment created successfully for user 1722
+INFO 2025-02-24 07:15:57,293 ai_views User 1722 requested AI recommendations.
+INFO 2025-02-24 07:15:57,741 ai_views AI recommendations generated for user 1722.
+ERROR 2025-02-24 07:15:57,760 auth_views User registration failed: {'password': [ErrorDetail(string='This password is too short. It must contain at least 10 characters.', code='password_too_short')], 'email': [ErrorDetail(string='Enter a valid email address', code='invalid'), ErrorDetail(string='Enter a valid email address.', code='invalid')], 'first_name': [ErrorDetail(string='Ensure this field has at least 2 characters.', code='min_length')], 'last_name': [ErrorDetail(string='Ensure this field has at least 2 characters.', code='min_length')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'password': [ErrorDetail(string='This password is too short. It must contain at least 10 characters.', code='password_too_short')], 'email': [ErrorDetail(string='Enter a valid email address', code='invalid'), ErrorDetail(string='Enter a valid email address.', code='invalid')], 'first_name': [ErrorDetail(string='Ensure this field has at least 2 characters.', code='min_length')], 'last_name': [ErrorDetail(string='Ensure this field has at least 2 characters.', code='min_length')]}
+WARNING 2025-02-24 07:15:57,762 log Bad Request: /api/auth/register/
+INFO 2025-02-24 07:15:57,846 auth_views New user registered: testuser (ID: 1723)
+INFO 2025-02-24 07:15:57,849 financial_profile_views FinancialProfileCreateView: Received request from user 1723
+ERROR 2025-02-24 07:15:57,852 financial_profile_views FinancialProfileCreateView: Validation failed for user 1723, errors: {'age': [ErrorDetail(string='Age must be at least 18', code='min_value')], 'monthly_salary': [ErrorDetail(string='This field is required.', code='required')], 'risk_tolerance': [ErrorDetail(string='Risk tolerance must be one of: low, medium, high', code='invalid_choice')]}
+WARNING 2025-02-24 07:15:57,853 log Bad Request: /api/profile/create/
+INFO 2025-02-24 07:15:57,856 financial_profile_views FinancialProfileCreateView: Received request from user 1723
+INFO 2025-02-24 07:15:57,860 financial_profile_views FinancialProfileCreateView: Validation successful for user 1723
+INFO 2025-02-24 07:15:57,861 financial_profile_views FinancialProfile created for user 1723
+INFO 2025-02-24 07:15:57,866 income_views IncomeListCreateView: Received income creation request from user 1723
+WARNING 2025-02-24 07:15:57,867 log Bad Request: /api/income/
+INFO 2025-02-24 07:15:57,869 income_views IncomeListCreateView: Received income creation request from user 1723
+INFO 2025-02-24 07:15:57,871 income_views IncomeListCreateView: Income 347 created by user 1723
+INFO 2025-02-24 07:15:57,948 investment_views InvestmentListCreateView: Fetching investments for user 1724
+INFO 2025-02-24 07:15:58,019 investment_views InvestmentListCreateView: Received investment creation request from user 1725
+INFO 2025-02-24 07:15:58,020 investment_views InvestmentListCreateView: Investment 457 created by user 1725
+INFO 2025-02-24 07:15:58,021 investment_views InvestmentListCreateView: Investment created successfully for user 1725
+INFO 2025-02-24 07:15:58,085 investment_views InvestmentListCreateView: Received investment creation request from user 1726
+INFO 2025-02-24 07:15:58,087 investment_views InvestmentListCreateView: Investment 458 created by user 1726
+INFO 2025-02-24 07:15:58,087 investment_views InvestmentListCreateView: Investment created successfully for user 1726
+INFO 2025-02-24 07:15:58,165 investment_views InvestmentListCreateView: Received investment creation request from user 1727
+INFO 2025-02-24 07:15:58,168 investment_views InvestmentListCreateView: Investment 459 created by user 1727
+INFO 2025-02-24 07:15:58,168 investment_views InvestmentListCreateView: Investment created successfully for user 1727
+INFO 2025-02-24 07:15:58,251 investment_views InvestmentListCreateView: Received investment creation request from user 1728
+WARNING 2025-02-24 07:15:58,253 log Bad Request: /api/investment/
+INFO 2025-02-24 07:15:58,333 investment_views InvestmentListCreateView: Received investment creation request from user 1729
+WARNING 2025-02-24 07:15:58,335 log Bad Request: /api/investment/
+INFO 2025-02-24 07:15:58,402 investment_views InvestmentListCreateView: Received investment creation request from user 1730
+WARNING 2025-02-24 07:15:58,403 log Bad Request: /api/investment/
+INFO 2025-02-24 07:15:58,470 investment_views InvestmentDetailView: Fetching specific investment for user 1731
+INFO 2025-02-24 07:15:58,525 investment_views InvestmentDetailView: Update request for investment 461 by user 1732
+INFO 2025-02-24 07:15:58,525 investment_views InvestmentDetailView: Fetching specific investment for user 1732
+INFO 2025-02-24 07:15:58,579 investment_views InvestmentDetailView: Update request for investment 462 by user 1733
+INFO 2025-02-24 07:15:58,579 investment_views InvestmentDetailView: Fetching specific investment for user 1733
+INFO 2025-02-24 07:15:58,649 investment_views InvestmentDetailView: Update request for investment 463 by user 1734
+INFO 2025-02-24 07:15:58,649 investment_views InvestmentDetailView: Fetching specific investment for user 1734
+ERROR 2025-02-24 07:15:58,651 investment_views InvestmentDetailView: Unexpected error for user 1734: {'years': [ErrorDetail(string='Years is required for SIP investments', code='invalid')], 'interest_rate': [ErrorDetail(string='Interest rate is required for SIP investments', code='invalid')]}
+WARNING 2025-02-24 07:15:58,652 log Bad Request: /api/investment/463/
+INFO 2025-02-24 07:15:58,712 investment_views InvestmentDetailView: Delete request for investment 464 by user 1735
+INFO 2025-02-24 07:15:58,712 investment_views InvestmentDetailView: Fetching specific investment for user 1735
+WARNING 2025-02-24 07:15:58,778 log Unauthorized: /api/investment/
+INFO 2025-02-24 07:18:06,324 ai_views User 1737 requested AI recommendations.
+INFO 2025-02-24 07:18:06,325 ai_views AI recommendations generated for user 1737.
+INFO 2025-02-24 07:18:06,380 ai_views User 1738 initiated AI chat.
+INFO 2025-02-24 07:18:06,382 ai_views AI chat response sent to user 1738.
+INFO 2025-02-24 07:18:06,452 ai_views User 1739 initiated AI chat.
+ERROR 2025-02-24 07:18:06,454 ai_views Validation error: {'message': [ErrorDetail(string='This field is required.', code='required')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/ai_views.py", line 62, in ai_chat_view
+    request_serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'message': [ErrorDetail(string='This field is required.', code='required')]}
+WARNING 2025-02-24 07:18:06,455 log Bad Request: /api/ai/chat/
+INFO 2025-02-24 07:18:06,527 ai_views User 1740 initiated AI chat.
+ERROR 2025-02-24 07:18:06,528 ai_views Validation error: {'message': [ErrorDetail(string='This field may not be blank.', code='blank')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/ai_views.py", line 62, in ai_chat_view
+    request_serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'message': [ErrorDetail(string='This field may not be blank.', code='blank')]}
+WARNING 2025-02-24 07:18:06,529 log Bad Request: /api/ai/chat/
+WARNING 2025-02-24 07:18:06,533 log Unauthorized: /api/ai/insights/
+WARNING 2025-02-24 07:18:06,536 log Unauthorized: /api/ai/chat/
+INFO 2025-02-24 07:18:06,593 ai_views User 1741 requested similar investments.
+INFO 2025-02-24 07:18:06,594 ai_views Similar investment recommendations generated for user 1741.
+INFO 2025-02-24 07:18:06,652 ai_views User 1742 requested similar investments.
+WARNING 2025-02-24 07:18:06,653 ai_views User 1742 has no financial profile.
+WARNING 2025-02-24 07:18:06,653 log Bad Request: /api/ai/similar-investments/
+INFO 2025-02-24 07:18:06,705 ai_views User 1743 requested similar investments.
+CRITICAL 2025-02-24 07:18:06,706 ai_views Unexpected error in ai_similar_investments_view: Failed to get investment recommendations
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/ai_views.py", line 98, in ai_similar_investments_view
+    recommendations = get_financial_advice(request.user.id, mode="similar_investments")
+  File "/home/rishi/Desktop/AIPOC/server/api/services/ai_advisor.py", line 142, in get_financial_advice
+    return query_ai_for_advice(user_id, user_message, mode, context)
+  File "/usr/lib/python3.10/unittest/mock.py", line 1114, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/usr/lib/python3.10/unittest/mock.py", line 1118, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/usr/lib/python3.10/unittest/mock.py", line 1173, in _execute_mock_call
+    raise effect
+Exception: Failed to get investment recommendations
+WARNING 2025-02-24 07:18:06,707 log Bad Request: /api/ai/similar-investments/
+ERROR 2025-02-24 07:18:06,712 auth_views Login error: {'password': [ErrorDetail(string='This field is required.', code='required')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 61, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'password': [ErrorDetail(string='This field is required.', code='required')]}
+WARNING 2025-02-24 07:18:06,713 log Bad Request: /api/auth/login/
+ERROR 2025-02-24 07:18:06,714 auth_views Login error: {'username': [ErrorDetail(string='This field is required.', code='required')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 61, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'username': [ErrorDetail(string='This field is required.', code='required')]}
+WARNING 2025-02-24 07:18:06,715 log Bad Request: /api/auth/login/
+INFO 2025-02-24 07:18:06,821 auth_views User logged in: testuser (ID: 1744)
+WARNING 2025-02-24 07:18:06,920 auth_views Failed login attempt for username: testuser
+WARNING 2025-02-24 07:18:06,920 log Unauthorized: /api/auth/login/
+INFO 2025-02-24 07:18:07,048 auth_views User logged in: testuser (ID: 1746)
+WARNING 2025-02-24 07:18:07,052 auth_views Failed login attempt for username: wronguser
+WARNING 2025-02-24 07:18:07,053 log Unauthorized: /api/auth/login/
+INFO 2025-02-24 07:18:07,112 auth_views New user registered: testuser (ID: 1747)
+INFO 2025-02-24 07:18:07,188 auth_views New user registered: testuser (ID: 1748)
+ERROR 2025-02-24 07:18:07,193 auth_views User registration failed: {'email': [ErrorDetail(string='A user with that email already exists.', code='invalid')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'email': [ErrorDetail(string='A user with that email already exists.', code='invalid')]}
+WARNING 2025-02-24 07:18:07,194 log Bad Request: /api/auth/register/
+INFO 2025-02-24 07:18:07,278 auth_views New user registered: testuser (ID: 1749)
+ERROR 2025-02-24 07:18:07,284 auth_views User registration failed: {'username': [ErrorDetail(string='A user with that username already exists.', code='unique')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'username': [ErrorDetail(string='A user with that username already exists.', code='unique')]}
+WARNING 2025-02-24 07:18:07,285 log Bad Request: /api/auth/register/
+ERROR 2025-02-24 07:18:07,298 auth_views User registration failed: {'email': [ErrorDetail(string='Enter a valid email address', code='invalid'), ErrorDetail(string='Enter a valid email address.', code='invalid')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'email': [ErrorDetail(string='Enter a valid email address', code='invalid'), ErrorDetail(string='Enter a valid email address.', code='invalid')]}
+WARNING 2025-02-24 07:18:07,299 log Bad Request: /api/auth/register/
+ERROR 2025-02-24 07:18:07,314 auth_views User registration failed: {'password': [ErrorDetail(string="Password fields didn't match.", code='invalid')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'password': [ErrorDetail(string="Password fields didn't match.", code='invalid')]}
+WARNING 2025-02-24 07:18:07,315 log Bad Request: /api/auth/register/
+ERROR 2025-02-24 07:18:07,331 auth_views User registration failed: {'email': [ErrorDetail(string='This field is required.', code='required')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'email': [ErrorDetail(string='This field is required.', code='required')]}
+WARNING 2025-02-24 07:18:07,332 log Bad Request: /api/auth/register/
+ERROR 2025-02-24 07:18:07,344 auth_views User registration failed: {'password': [ErrorDetail(string='This password is too short. It must contain at least 10 characters.', code='password_too_short')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'password': [ErrorDetail(string='This password is too short. It must contain at least 10 characters.', code='password_too_short')]}
+WARNING 2025-02-24 07:18:07,345 log Bad Request: /api/auth/register/
+WARNING 2025-02-24 07:18:07,449 log Unauthorized: /api/dashboard/
+INFO 2025-02-24 07:18:07,672 expense_views ExpenseListCreateView: Fetching expenses for user 1753
+INFO 2025-02-24 07:18:07,740 expense_views ExpenseListCreateView: Received expense creation request from user 1754
+INFO 2025-02-24 07:18:07,741 expense_views ExpenseListCreateView: Expense 317 created by user 1754
+INFO 2025-02-24 07:18:07,808 expense_views ExpenseDetailView: Fetching specific expense for user 1755
+INFO 2025-02-24 07:18:07,868 expense_views ExpenseDetailView: Update request for expense 319 by user 1756
+INFO 2025-02-24 07:18:07,868 expense_views ExpenseDetailView: Fetching specific expense for user 1756
+INFO 2025-02-24 07:18:07,934 expense_views ExpenseDetailView: Delete request for expense 320 by user 1757
+INFO 2025-02-24 07:18:07,934 expense_views ExpenseDetailView: Fetching specific expense for user 1757
+WARNING 2025-02-24 07:18:08,005 log Unauthorized: /api/expense/
+INFO 2025-02-24 07:18:08,074 financial_profile_views FinancialProfileView: Fetching financial profile for user 1759
+INFO 2025-02-24 07:18:08,126 financial_profile_views FinancialProfileCreateView: Received request from user 1760
+INFO 2025-02-24 07:18:08,127 financial_profile_views FinancialProfileCreateView: Validation successful for user 1760
+INFO 2025-02-24 07:18:08,128 financial_profile_views FinancialProfile created for user 1760
+INFO 2025-02-24 07:18:08,195 financial_profile_views FinancialProfileView: Fetching financial profile for user 1761
+INFO 2025-02-24 07:18:08,270 financial_profile_views FinancialProfileView: Fetching financial profile for user 1762
+WARNING 2025-02-24 07:18:08,352 log Unauthorized: /api/profile/513/
+INFO 2025-02-24 07:18:08,428 income_views IncomeListCreateView: Fetching incomes for user 1764
+INFO 2025-02-24 07:18:08,488 income_views IncomeListCreateView: Received income creation request from user 1765
+INFO 2025-02-24 07:18:08,490 income_views IncomeListCreateView: Income 352 created by user 1765
+INFO 2025-02-24 07:18:08,569 income_views IncomeDetailView: Fetching specific income for user 1766
+INFO 2025-02-24 07:18:08,635 income_views IncomeDetailView: Update request for income 354 by user 1767
+INFO 2025-02-24 07:18:08,636 income_views IncomeDetailView: Fetching specific income for user 1767
+INFO 2025-02-24 07:18:08,697 income_views IncomeDetailView: Delete request for income 355 by user 1768
+INFO 2025-02-24 07:18:08,697 income_views IncomeDetailView: Fetching specific income for user 1768
+WARNING 2025-02-24 07:18:08,772 log Unauthorized: /api/income/
+INFO 2025-02-24 07:18:08,841 auth_views New user registered: testuser (ID: 1770)
+INFO 2025-02-24 07:18:08,844 financial_profile_views FinancialProfileCreateView: Received request from user 1770
+INFO 2025-02-24 07:18:08,845 financial_profile_views FinancialProfileCreateView: Validation successful for user 1770
+INFO 2025-02-24 07:18:08,846 financial_profile_views FinancialProfile created for user 1770
+INFO 2025-02-24 07:18:08,847 income_views IncomeListCreateView: Received income creation request from user 1770
+INFO 2025-02-24 07:18:08,848 income_views IncomeListCreateView: Income 357 created by user 1770
+INFO 2025-02-24 07:18:08,850 expense_views ExpenseListCreateView: Received expense creation request from user 1770
+INFO 2025-02-24 07:18:08,852 expense_views ExpenseListCreateView: Expense 322 created by user 1770
+INFO 2025-02-24 07:18:08,853 investment_views InvestmentListCreateView: Received investment creation request from user 1770
+INFO 2025-02-24 07:18:08,855 investment_views InvestmentListCreateView: Investment 469 created by user 1770
+INFO 2025-02-24 07:18:08,855 investment_views InvestmentListCreateView: Investment created successfully for user 1770
+INFO 2025-02-24 07:18:08,856 ai_views User 1770 requested AI recommendations.
+INFO 2025-02-24 07:18:09,329 ai_views AI recommendations generated for user 1770.
+ERROR 2025-02-24 07:18:09,342 auth_views User registration failed: {'password': [ErrorDetail(string='This password is too short. It must contain at least 10 characters.', code='password_too_short')], 'email': [ErrorDetail(string='Enter a valid email address', code='invalid'), ErrorDetail(string='Enter a valid email address.', code='invalid')], 'first_name': [ErrorDetail(string='Ensure this field has at least 2 characters.', code='min_length')], 'last_name': [ErrorDetail(string='Ensure this field has at least 2 characters.', code='min_length')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'password': [ErrorDetail(string='This password is too short. It must contain at least 10 characters.', code='password_too_short')], 'email': [ErrorDetail(string='Enter a valid email address', code='invalid'), ErrorDetail(string='Enter a valid email address.', code='invalid')], 'first_name': [ErrorDetail(string='Ensure this field has at least 2 characters.', code='min_length')], 'last_name': [ErrorDetail(string='Ensure this field has at least 2 characters.', code='min_length')]}
+WARNING 2025-02-24 07:18:09,344 log Bad Request: /api/auth/register/
+INFO 2025-02-24 07:18:09,415 auth_views New user registered: testuser (ID: 1771)
+INFO 2025-02-24 07:18:09,418 financial_profile_views FinancialProfileCreateView: Received request from user 1771
+ERROR 2025-02-24 07:18:09,419 financial_profile_views FinancialProfileCreateView: Validation failed for user 1771, errors: {'age': [ErrorDetail(string='Age must be at least 18', code='min_value')], 'monthly_salary': [ErrorDetail(string='This field is required.', code='required')], 'risk_tolerance': [ErrorDetail(string='Risk tolerance must be one of: low, medium, high', code='invalid_choice')]}
+WARNING 2025-02-24 07:18:09,420 log Bad Request: /api/profile/create/
+INFO 2025-02-24 07:18:09,422 financial_profile_views FinancialProfileCreateView: Received request from user 1771
+INFO 2025-02-24 07:18:09,423 financial_profile_views FinancialProfileCreateView: Validation successful for user 1771
+INFO 2025-02-24 07:18:09,424 financial_profile_views FinancialProfile created for user 1771
+INFO 2025-02-24 07:18:09,428 income_views IncomeListCreateView: Received income creation request from user 1771
+WARNING 2025-02-24 07:18:09,430 log Bad Request: /api/income/
+INFO 2025-02-24 07:18:09,432 income_views IncomeListCreateView: Received income creation request from user 1771
+INFO 2025-02-24 07:18:09,434 income_views IncomeListCreateView: Income 358 created by user 1771
+INFO 2025-02-24 07:18:09,510 investment_views InvestmentListCreateView: Fetching investments for user 1772
+INFO 2025-02-24 07:18:09,563 investment_views InvestmentListCreateView: Received investment creation request from user 1773
+INFO 2025-02-24 07:18:09,566 investment_views InvestmentListCreateView: Investment 471 created by user 1773
+INFO 2025-02-24 07:18:09,566 investment_views InvestmentListCreateView: Investment created successfully for user 1773
+INFO 2025-02-24 07:18:09,643 investment_views InvestmentListCreateView: Received investment creation request from user 1774
+INFO 2025-02-24 07:18:09,644 investment_views InvestmentListCreateView: Investment 472 created by user 1774
+INFO 2025-02-24 07:18:09,644 investment_views InvestmentListCreateView: Investment created successfully for user 1774
+INFO 2025-02-24 07:18:09,709 investment_views InvestmentListCreateView: Received investment creation request from user 1775
+INFO 2025-02-24 07:18:09,710 investment_views InvestmentListCreateView: Investment 473 created by user 1775
+INFO 2025-02-24 07:18:09,711 investment_views InvestmentListCreateView: Investment created successfully for user 1775
+INFO 2025-02-24 07:18:09,770 investment_views InvestmentListCreateView: Received investment creation request from user 1776
+WARNING 2025-02-24 07:18:09,772 log Bad Request: /api/investment/
+INFO 2025-02-24 07:18:09,844 investment_views InvestmentListCreateView: Received investment creation request from user 1777
+WARNING 2025-02-24 07:18:09,845 log Bad Request: /api/investment/
+INFO 2025-02-24 07:18:09,907 investment_views InvestmentListCreateView: Received investment creation request from user 1778
+WARNING 2025-02-24 07:18:09,908 log Bad Request: /api/investment/
+INFO 2025-02-24 07:18:09,977 investment_views InvestmentDetailView: Fetching specific investment for user 1779
+INFO 2025-02-24 07:18:10,044 investment_views InvestmentDetailView: Update request for investment 475 by user 1780
+INFO 2025-02-24 07:18:10,044 investment_views InvestmentDetailView: Fetching specific investment for user 1780
+INFO 2025-02-24 07:18:10,118 investment_views InvestmentDetailView: Update request for investment 476 by user 1781
+INFO 2025-02-24 07:18:10,118 investment_views InvestmentDetailView: Fetching specific investment for user 1781
+INFO 2025-02-24 07:18:10,180 investment_views InvestmentDetailView: Update request for investment 477 by user 1782
+INFO 2025-02-24 07:18:10,180 investment_views InvestmentDetailView: Fetching specific investment for user 1782
+ERROR 2025-02-24 07:18:10,182 investment_views InvestmentDetailView: Unexpected error for user 1782: {'years': [ErrorDetail(string='Years is required for SIP investments', code='invalid')], 'interest_rate': [ErrorDetail(string='Interest rate is required for SIP investments', code='invalid')]}
+WARNING 2025-02-24 07:18:10,183 log Bad Request: /api/investment/477/
+INFO 2025-02-24 07:18:10,253 investment_views InvestmentDetailView: Delete request for investment 478 by user 1783
+INFO 2025-02-24 07:18:10,253 investment_views InvestmentDetailView: Fetching specific investment for user 1783
+WARNING 2025-02-24 07:18:10,320 log Unauthorized: /api/investment/
+INFO 2025-02-24 07:22:09,703 ai_views User 1785 requested AI recommendations.
+INFO 2025-02-24 07:22:09,705 ai_views AI recommendations generated for user 1785.
+INFO 2025-02-24 07:22:09,781 ai_views User 1786 initiated AI chat.
+INFO 2025-02-24 07:22:09,784 ai_views AI chat response sent to user 1786.
+INFO 2025-02-24 07:22:09,853 ai_views User 1787 initiated AI chat.
+ERROR 2025-02-24 07:22:09,855 ai_views Validation error: {'message': [ErrorDetail(string='This field is required.', code='required')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/ai_views.py", line 62, in ai_chat_view
+    request_serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'message': [ErrorDetail(string='This field is required.', code='required')]}
+WARNING 2025-02-24 07:22:09,856 log Bad Request: /api/ai/chat/
+INFO 2025-02-24 07:22:09,931 ai_views User 1788 initiated AI chat.
+ERROR 2025-02-24 07:22:09,933 ai_views Validation error: {'message': [ErrorDetail(string='This field may not be blank.', code='blank')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/ai_views.py", line 62, in ai_chat_view
+    request_serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'message': [ErrorDetail(string='This field may not be blank.', code='blank')]}
+WARNING 2025-02-24 07:22:09,934 log Bad Request: /api/ai/chat/
+WARNING 2025-02-24 07:22:09,943 log Unauthorized: /api/ai/insights/
+WARNING 2025-02-24 07:22:09,952 log Unauthorized: /api/ai/chat/
+INFO 2025-02-24 07:22:10,030 ai_views User 1789 requested similar investments.
+INFO 2025-02-24 07:22:10,032 ai_views Similar investment recommendations generated for user 1789.
+INFO 2025-02-24 07:22:10,111 ai_views User 1790 requested similar investments.
+WARNING 2025-02-24 07:22:10,112 ai_views User 1790 has no financial profile.
+WARNING 2025-02-24 07:22:10,113 log Bad Request: /api/ai/similar-investments/
+INFO 2025-02-24 07:22:10,191 ai_views User 1791 requested similar investments.
+CRITICAL 2025-02-24 07:22:10,193 ai_views Unexpected error in ai_similar_investments_view: Failed to get investment recommendations
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/ai_views.py", line 98, in ai_similar_investments_view
+    recommendations = get_financial_advice(request.user.id, mode="similar_investments")
+  File "/home/rishi/Desktop/AIPOC/server/api/services/ai_advisor.py", line 142, in get_financial_advice
+    return query_ai_for_advice(user_id, user_message, mode, context)
+  File "/usr/lib/python3.10/unittest/mock.py", line 1114, in __call__
+    return self._mock_call(*args, **kwargs)
+  File "/usr/lib/python3.10/unittest/mock.py", line 1118, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+  File "/usr/lib/python3.10/unittest/mock.py", line 1173, in _execute_mock_call
+    raise effect
+Exception: Failed to get investment recommendations
+WARNING 2025-02-24 07:22:10,195 log Bad Request: /api/ai/similar-investments/
+ERROR 2025-02-24 07:22:10,209 auth_views Login error: {'password': [ErrorDetail(string='This field is required.', code='required')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 61, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'password': [ErrorDetail(string='This field is required.', code='required')]}
+WARNING 2025-02-24 07:22:10,210 log Bad Request: /api/auth/login/
+ERROR 2025-02-24 07:22:10,214 auth_views Login error: {'username': [ErrorDetail(string='This field is required.', code='required')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 61, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'username': [ErrorDetail(string='This field is required.', code='required')]}
+WARNING 2025-02-24 07:22:10,215 log Bad Request: /api/auth/login/
+INFO 2025-02-24 07:22:10,355 auth_views User logged in: testuser (ID: 1792)
+WARNING 2025-02-24 07:22:10,483 auth_views Failed login attempt for username: testuser
+WARNING 2025-02-24 07:22:10,484 log Unauthorized: /api/auth/login/
+INFO 2025-02-24 07:22:10,626 auth_views User logged in: testuser (ID: 1794)
+WARNING 2025-02-24 07:22:10,633 auth_views Failed login attempt for username: wronguser
+WARNING 2025-02-24 07:22:10,633 log Unauthorized: /api/auth/login/
+INFO 2025-02-24 07:22:10,720 auth_views New user registered: testuser (ID: 1795)
+INFO 2025-02-24 07:22:10,792 auth_views New user registered: testuser (ID: 1796)
+ERROR 2025-02-24 07:22:10,797 auth_views User registration failed: {'email': [ErrorDetail(string='A user with that email already exists.', code='invalid')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'email': [ErrorDetail(string='A user with that email already exists.', code='invalid')]}
+WARNING 2025-02-24 07:22:10,798 log Bad Request: /api/auth/register/
+INFO 2025-02-24 07:22:10,868 auth_views New user registered: testuser (ID: 1797)
+ERROR 2025-02-24 07:22:10,871 auth_views User registration failed: {'username': [ErrorDetail(string='A user with that username already exists.', code='unique')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'username': [ErrorDetail(string='A user with that username already exists.', code='unique')]}
+WARNING 2025-02-24 07:22:10,872 log Bad Request: /api/auth/register/
+ERROR 2025-02-24 07:22:10,884 auth_views User registration failed: {'email': [ErrorDetail(string='Enter a valid email address', code='invalid'), ErrorDetail(string='Enter a valid email address.', code='invalid')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'email': [ErrorDetail(string='Enter a valid email address', code='invalid'), ErrorDetail(string='Enter a valid email address.', code='invalid')]}
+WARNING 2025-02-24 07:22:10,886 log Bad Request: /api/auth/register/
+ERROR 2025-02-24 07:22:10,895 auth_views User registration failed: {'password': [ErrorDetail(string="Password fields didn't match.", code='invalid')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'password': [ErrorDetail(string="Password fields didn't match.", code='invalid')]}
+WARNING 2025-02-24 07:22:10,896 log Bad Request: /api/auth/register/
+ERROR 2025-02-24 07:22:10,902 auth_views User registration failed: {'email': [ErrorDetail(string='This field is required.', code='required')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'email': [ErrorDetail(string='This field is required.', code='required')]}
+WARNING 2025-02-24 07:22:10,902 log Bad Request: /api/auth/register/
+ERROR 2025-02-24 07:22:10,907 auth_views User registration failed: {'password': [ErrorDetail(string='This password is too short. It must contain at least 10 characters.', code='password_too_short')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'password': [ErrorDetail(string='This password is too short. It must contain at least 10 characters.', code='password_too_short')]}
+WARNING 2025-02-24 07:22:10,908 log Bad Request: /api/auth/register/
+WARNING 2025-02-24 07:22:10,993 log Unauthorized: /api/dashboard/
+INFO 2025-02-24 07:22:11,179 expense_views ExpenseListCreateView: Fetching expenses for user 1801
+INFO 2025-02-24 07:22:11,251 expense_views ExpenseListCreateView: Received expense creation request from user 1802
+INFO 2025-02-24 07:22:11,252 expense_views ExpenseListCreateView: Expense 327 created by user 1802
+INFO 2025-02-24 07:22:11,317 expense_views ExpenseDetailView: Fetching specific expense for user 1803
+INFO 2025-02-24 07:22:11,390 expense_views ExpenseDetailView: Update request for expense 329 by user 1804
+INFO 2025-02-24 07:22:11,390 expense_views ExpenseDetailView: Fetching specific expense for user 1804
+INFO 2025-02-24 07:22:11,450 expense_views ExpenseDetailView: Delete request for expense 330 by user 1805
+INFO 2025-02-24 07:22:11,450 expense_views ExpenseDetailView: Fetching specific expense for user 1805
+WARNING 2025-02-24 07:22:11,520 log Unauthorized: /api/expense/
+INFO 2025-02-24 07:22:11,581 financial_profile_views FinancialProfileView: Fetching financial profile for user 1807
+INFO 2025-02-24 07:22:11,649 financial_profile_views FinancialProfileCreateView: Received request from user 1808
+INFO 2025-02-24 07:22:11,651 financial_profile_views FinancialProfileCreateView: Validation successful for user 1808
+INFO 2025-02-24 07:22:11,651 financial_profile_views FinancialProfile created for user 1808
+INFO 2025-02-24 07:22:11,710 financial_profile_views FinancialProfileView: Fetching financial profile for user 1809
+INFO 2025-02-24 07:22:11,766 financial_profile_views FinancialProfileView: Fetching financial profile for user 1810
+WARNING 2025-02-24 07:22:11,835 log Unauthorized: /api/profile/528/
+INFO 2025-02-24 07:22:11,901 income_views IncomeListCreateView: Fetching incomes for user 1812
+INFO 2025-02-24 07:22:11,971 income_views IncomeListCreateView: Received income creation request from user 1813
+INFO 2025-02-24 07:22:11,972 income_views IncomeListCreateView: Income 363 created by user 1813
+INFO 2025-02-24 07:22:12,027 income_views IncomeDetailView: Fetching specific income for user 1814
+INFO 2025-02-24 07:22:12,078 income_views IncomeDetailView: Update request for income 365 by user 1815
+INFO 2025-02-24 07:22:12,078 income_views IncomeDetailView: Fetching specific income for user 1815
+INFO 2025-02-24 07:22:12,148 income_views IncomeDetailView: Delete request for income 366 by user 1816
+INFO 2025-02-24 07:22:12,148 income_views IncomeDetailView: Fetching specific income for user 1816
+WARNING 2025-02-24 07:22:12,201 log Unauthorized: /api/income/
+INFO 2025-02-24 07:22:12,253 auth_views New user registered: testuser (ID: 1818)
+INFO 2025-02-24 07:22:12,255 financial_profile_views FinancialProfileCreateView: Received request from user 1818
+INFO 2025-02-24 07:22:12,257 financial_profile_views FinancialProfileCreateView: Validation successful for user 1818
+INFO 2025-02-24 07:22:12,257 financial_profile_views FinancialProfile created for user 1818
+INFO 2025-02-24 07:22:12,260 income_views IncomeListCreateView: Received income creation request from user 1818
+INFO 2025-02-24 07:22:12,261 income_views IncomeListCreateView: Income 368 created by user 1818
+INFO 2025-02-24 07:22:12,263 expense_views ExpenseListCreateView: Received expense creation request from user 1818
+INFO 2025-02-24 07:22:12,265 expense_views ExpenseListCreateView: Expense 332 created by user 1818
+INFO 2025-02-24 07:22:12,267 investment_views InvestmentListCreateView: Received investment creation request from user 1818
+INFO 2025-02-24 07:22:12,269 investment_views InvestmentListCreateView: Investment 483 created by user 1818
+INFO 2025-02-24 07:22:12,269 investment_views InvestmentListCreateView: Investment created successfully for user 1818
+INFO 2025-02-24 07:22:12,271 ai_views User 1818 requested AI recommendations.
+INFO 2025-02-24 07:22:12,736 ai_views AI recommendations generated for user 1818.
+ERROR 2025-02-24 07:22:12,751 auth_views User registration failed: {'password': [ErrorDetail(string='This password is too short. It must contain at least 10 characters.', code='password_too_short')], 'email': [ErrorDetail(string='Enter a valid email address', code='invalid'), ErrorDetail(string='Enter a valid email address.', code='invalid')], 'first_name': [ErrorDetail(string='Ensure this field has at least 2 characters.', code='min_length')], 'last_name': [ErrorDetail(string='Ensure this field has at least 2 characters.', code='min_length')]}
+Traceback (most recent call last):
+  File "/home/rishi/Desktop/AIPOC/server/api/views/auth_views.py", line 21, in post
+    serializer.is_valid(raise_exception=True)
+  File "/home/rishi/Desktop/AIPOC/server/venv/lib/python3.10/site-packages/rest_framework/serializers.py", line 231, in is_valid
+    raise ValidationError(self.errors)
+rest_framework.exceptions.ValidationError: {'password': [ErrorDetail(string='This password is too short. It must contain at least 10 characters.', code='password_too_short')], 'email': [ErrorDetail(string='Enter a valid email address', code='invalid'), ErrorDetail(string='Enter a valid email address.', code='invalid')], 'first_name': [ErrorDetail(string='Ensure this field has at least 2 characters.', code='min_length')], 'last_name': [ErrorDetail(string='Ensure this field has at least 2 characters.', code='min_length')]}
+WARNING 2025-02-24 07:22:12,752 log Bad Request: /api/auth/register/
+INFO 2025-02-24 07:22:12,824 auth_views New user registered: testuser (ID: 1819)
+INFO 2025-02-24 07:22:12,827 financial_profile_views FinancialProfileCreateView: Received request from user 1819
+ERROR 2025-02-24 07:22:12,828 financial_profile_views FinancialProfileCreateView: Validation failed for user 1819, errors: {'age': [ErrorDetail(string='Age must be at least 18', code='min_value')], 'monthly_salary': [ErrorDetail(string='This field is required.', code='required')], 'risk_tolerance': [ErrorDetail(string='Risk tolerance must be one of: low, medium, high', code='invalid_choice')]}
+WARNING 2025-02-24 07:22:12,829 log Bad Request: /api/profile/create/
+INFO 2025-02-24 07:22:12,830 financial_profile_views FinancialProfileCreateView: Received request from user 1819
+INFO 2025-02-24 07:22:12,832 financial_profile_views FinancialProfileCreateView: Validation successful for user 1819
+INFO 2025-02-24 07:22:12,833 financial_profile_views FinancialProfile created for user 1819
+INFO 2025-02-24 07:22:12,834 income_views IncomeListCreateView: Received income creation request from user 1819
+WARNING 2025-02-24 07:22:12,836 log Bad Request: /api/income/
+INFO 2025-02-24 07:22:12,837 income_views IncomeListCreateView: Received income creation request from user 1819
+INFO 2025-02-24 07:22:12,838 income_views IncomeListCreateView: Income 369 created by user 1819
+INFO 2025-02-24 07:22:12,913 investment_views InvestmentListCreateView: Fetching investments for user 1820
+INFO 2025-02-24 07:22:12,984 investment_views InvestmentListCreateView: Received investment creation request from user 1821
+INFO 2025-02-24 07:22:12,986 investment_views InvestmentListCreateView: Investment 485 created by user 1821
+INFO 2025-02-24 07:22:12,986 investment_views InvestmentListCreateView: Investment created successfully for user 1821
+INFO 2025-02-24 07:22:13,061 investment_views InvestmentListCreateView: Received investment creation request from user 1822
+INFO 2025-02-24 07:22:13,062 investment_views InvestmentListCreateView: Investment 486 created by user 1822
+INFO 2025-02-24 07:22:13,062 investment_views InvestmentListCreateView: Investment created successfully for user 1822
+INFO 2025-02-24 07:22:13,119 investment_views InvestmentListCreateView: Received investment creation request from user 1823
+INFO 2025-02-24 07:22:13,121 investment_views InvestmentListCreateView: Investment 487 created by user 1823
+INFO 2025-02-24 07:22:13,121 investment_views InvestmentListCreateView: Investment created successfully for user 1823
+INFO 2025-02-24 07:22:13,176 investment_views InvestmentListCreateView: Received investment creation request from user 1824
+WARNING 2025-02-24 07:22:13,177 log Bad Request: /api/investment/
+INFO 2025-02-24 07:22:13,232 investment_views InvestmentListCreateView: Received investment creation request from user 1825
+WARNING 2025-02-24 07:22:13,234 log Bad Request: /api/investment/
+INFO 2025-02-24 07:22:13,299 investment_views InvestmentListCreateView: Received investment creation request from user 1826
+WARNING 2025-02-24 07:22:13,300 log Bad Request: /api/investment/
+INFO 2025-02-24 07:22:13,361 investment_views InvestmentDetailView: Fetching specific investment for user 1827
+INFO 2025-02-24 07:22:13,431 investment_views InvestmentDetailView: Update request for investment 489 by user 1828
+INFO 2025-02-24 07:22:13,431 investment_views InvestmentDetailView: Fetching specific investment for user 1828
+INFO 2025-02-24 07:22:13,491 investment_views InvestmentDetailView: Update request for investment 490 by user 1829
+INFO 2025-02-24 07:22:13,491 investment_views InvestmentDetailView: Fetching specific investment for user 1829
+INFO 2025-02-24 07:22:13,557 investment_views InvestmentDetailView: Update request for investment 491 by user 1830
+INFO 2025-02-24 07:22:13,557 investment_views InvestmentDetailView: Fetching specific investment for user 1830
+ERROR 2025-02-24 07:22:13,559 investment_views InvestmentDetailView: Unexpected error for user 1830: {'years': [ErrorDetail(string='Years is required for SIP investments', code='invalid')], 'interest_rate': [ErrorDetail(string='Interest rate is required for SIP investments', code='invalid')]}
+WARNING 2025-02-24 07:22:13,559 log Bad Request: /api/investment/491/
+INFO 2025-02-24 07:22:13,619 investment_views InvestmentDetailView: Delete request for investment 492 by user 1831
+INFO 2025-02-24 07:22:13,619 investment_views InvestmentDetailView: Fetching specific investment for user 1831
+WARNING 2025-02-24 07:22:13,689 log Unauthorized: /api/investment/
+INFO 2025-02-24 07:22:46,485 autoreload Watching for file changes with StatReloader
+INFO 2025-02-24 07:24:02,144 basehttp "GET /api/dashboard/ HTTP/1.1" 200 940
+INFO 2025-02-24 07:24:02,162 basehttp "GET /api/dashboard/ HTTP/1.1" 200 940
+INFO 2025-02-24 07:24:02,195 ai_views User 14 requested similar investments.
+INFO 2025-02-24 07:24:02,196 ai_views User 14 requested AI recommendations.
+INFO 2025-02-24 07:24:03,430 ai_views Similar investment recommendations generated for user 14.
+INFO 2025-02-24 07:24:03,432 basehttp "GET /api/ai/similar-investments/ HTTP/1.1" 200 718
+INFO 2025-02-24 07:24:03,443 ai_views User 14 requested similar investments.
+INFO 2025-02-24 07:24:04,762 ai_views Similar investment recommendations generated for user 14.
+INFO 2025-02-24 07:24:04,763 ai_views AI recommendations generated for user 14.
+INFO 2025-02-24 07:24:04,765 basehttp "GET /api/ai/insights/ HTTP/1.1" 200 2588
+INFO 2025-02-24 07:24:04,766 basehttp "GET /api/ai/similar-investments/ HTTP/1.1" 200 660
+INFO 2025-02-24 07:24:04,780 ai_views User 14 requested AI recommendations.
+INFO 2025-02-24 07:24:07,323 ai_views AI recommendations generated for user 14.
+INFO 2025-02-24 07:24:07,325 basehttp "GET /api/ai/insights/ HTTP/1.1" 200 2448
