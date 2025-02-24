@@ -10,6 +10,7 @@ class FinancialProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="financial_profile",unique=True)
     age = models.PositiveIntegerField()
     monthly_salary = models.IntegerField()
+    monthly_savings = models.IntegerField()
     risk_tolerance = models.CharField(max_length=10, choices=[("low", "Low"), ("medium", "Medium"), ("high", "High")])
     created_at = models.DateTimeField(auto_now_add=True)
 

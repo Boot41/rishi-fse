@@ -33,6 +33,7 @@ def financial_profile(test_user):
         user=test_user,
         age=30,
         monthly_salary=5000,
+        monthly_savings=1000,
         risk_tolerance='medium'
     )
 

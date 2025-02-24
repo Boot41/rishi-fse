@@ -18,7 +18,7 @@ class FinancialProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FinancialProfile
-        fields = ['id', 'age', 'monthly_salary', 'risk_tolerance', 'created_at']
+        fields = ['id', 'age', 'monthly_salary', 'monthly_savings', 'risk_tolerance', 'created_at']
         read_only_fields = ['id', 'created_at']
         
     def validate(self, data):

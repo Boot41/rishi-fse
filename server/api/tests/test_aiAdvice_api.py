@@ -46,6 +46,7 @@ def auth_user(db):
         user=user_data['user'],
         age=30,
         monthly_salary=50000,
+        monthly_savings=10000,
         risk_tolerance='medium'
     )
     return user_data
