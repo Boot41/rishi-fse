@@ -8,7 +8,9 @@ from ..serializers import (
     AIChatRequestSerializer,
     AIChatResponseSerializer,
     AIInsightResponseSerializer,
-    AISimilarInvestmentsResponseSerializer
+    AISimilarInvestmentsResponseSerializer,
+    AILoanAnalysisRequestSerializer,
+    AILoanAnalysisResponseSerializer
 )
 from ..models import FinancialProfile
 
@@ -107,3 +109,43 @@ def ai_similar_investments_view(request):
     except Exception as e:
         logger.critical(f"Unexpected error in ai_similar_investments_view: {e}", exc_info=True)
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def ai_loan_analysis_view(request):
+    """Get AI-generated loan affordability analysis."""
+    try:
+        logger.info(f"User {request.user.id} requested loan analysis.")
+        
+        # Check if user has a financial profile
+        if not FinancialProfile.objects.filter(user=request.user).exists():
+            logger.warning(f"User {request.user.id} has no financial profile.")
+            return Response(
+                {"error": "Please complete your financial profile first"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Validate request data
+        request_serializer = AILoanAnalysisRequestSerializer(data=request.data)
+        request_serializer.is_valid(raise_exception=True)
+        
+        # Get loan analysis
+        advice = get_financial_advice(
+            request.user.id,
+            mode="loan",
+            loan_details=request_serializer.validated_data
+        )
+        
+        # Validate and return response
+        response_serializer = AILoanAnalysisResponseSerializer(data={"advice": advice})
+        response_serializer.is_valid(raise_exception=True)
+        
+        logger.info(f"Loan analysis generated for user {request.user.id}.")
+        return Response(response_serializer.data)
+        
+    except serializers.ValidationError as e:
+        logger.error(f"Validation error: {e.detail}", exc_info=True)
+        return Response({"error": e.detail}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        logger.critical(f"Unexpected error in ai_loan_analysis_view: {e}", exc_info=True)
+        return Response({"error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

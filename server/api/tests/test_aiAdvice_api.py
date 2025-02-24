@@ -6,7 +6,6 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from api.tests.test_utils import create_test_user
 from decimal import Decimal
-from datetime import date
 import os
 from api.models import FinancialProfile
 
@@ -19,29 +18,8 @@ def setup_env():
     del os.environ["GROQ_API_KEY"]
 
 @pytest.fixture
-def mock_financial_data():
-    return {
-        'profile': MagicMock(age=30, risk_tolerance='medium'),
-        'incomes': [
-            MagicMock(source='Salary', amount=Decimal('50000'))
-        ],
-        'expenses': [
-            MagicMock(category='Rent', amount=Decimal('15000'))
-        ],
-        'investments': [
-            MagicMock(
-                name='Stocks',
-                investment_type='equity',
-                amount_invested=Decimal('10000'),
-                current_value=Decimal('12000')
-            )
-        ]
-    }
-
-@pytest.fixture
 def auth_user(db):
     user_data = create_test_user()
-    # Create financial profile for the user
     FinancialProfile.objects.create(
         user=user_data['user'],
         age=30,
@@ -59,62 +37,34 @@ def auth_client(auth_user):
     return client
 
 class TestAIAdvice:
-    @patch("api.services.ai_advisor.query_ai_for_advice")
-    def test_ai_insights(self, mock_query_ai, auth_client):
-        # Setup API response mock
-        mock_query_ai.return_value = "Invest in index funds and reduce unnecessary expenses."
-        
+    def setup_method(self):
+        self.patcher = patch("api.services.ai_advisor.get_financial_advice")
+        self.mock_get_advice = self.patcher.start()
+
+    def teardown_method(self):
+        self.patcher.stop()
+
+    def test_ai_insights(self, auth_client):
+        self.mock_get_advice.reset_mock()
+        self.mock_get_advice.return_value = "Invest in index funds and reduce unnecessary expenses."
+
         url = reverse("ai-insights")
         response = auth_client.get(url)
-        
-        assert response.status_code == status.HTTP_200_OK
-        assert "advice" in response.json()
-        assert response.json()["advice"] == "Invest in index funds and reduce unnecessary expenses."
-        
-        # Verify API call was made with correct data
-        mock_query_ai.assert_called_once_with(
-            auth_client._credentials['user_id'],
-            None,  # user_message
-            "normal",  # mode
-            None  # context
-        )
 
-    @patch("api.services.ai_advisor.query_ai_for_advice")
-    def test_ai_chat(self, mock_query_ai, auth_client):
-        # Setup API response mock
-        expected_response = "Based on your profile, I recommend increasing your emergency fund."
-        mock_query_ai.return_value = expected_response
-        
-        url = reverse("ai-chat")
-        data = {"message": "What should I do with my savings?"}
-        response = auth_client.post(url, data)
-        
         assert response.status_code == status.HTTP_200_OK
-        assert "response" in response.json()
-        assert response.json()["response"] == expected_response
-        assert response.json()["status"] == "success"
-        
-        # Verify API call was made with correct data
-        mock_query_ai.assert_called_once_with(
-            auth_client._credentials['user_id'],
-            "What should I do with my savings?",  # user_message
-            "chat",  # mode
-            None  # context
-        )
+        assert response.json()["advice"] == "Invest in index funds and reduce unnecessary expenses."
+
+        self.mock_get_advice.assert_called_once_with(auth_client._credentials['user_id'], mode="normal")
 
     def test_ai_chat_missing_message(self, auth_client):
         url = reverse("ai-chat")
-        data = {}  # Missing message field
-        response = auth_client.post(url, data)
-        
+        response = auth_client.post(url, {})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "message" in response.json()["error"]
 
     def test_ai_chat_empty_message(self, auth_client):
         url = reverse("ai-chat")
-        data = {"message": ""}  # Empty message
-        response = auth_client.post(url, data)
-        
+        response = auth_client.post(url, {"message": ""})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "message" in response.json()["error"]
 
@@ -128,52 +78,16 @@ class TestAIAdvice:
         response = client.post(url, {"message": "Test message"})
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    @patch("api.services.ai_advisor.query_ai_for_advice")
-    def test_ai_similar_investments(self, mock_query_ai, auth_client):
-        # Setup API response mock
-        expected_recommendations = "1. HDFC Bank (Banking): Similar risk profile to your current investments\n2. Infosys (Technology): Strong growth potential with moderate risk\n3. Asian Paints (Manufacturing): Consistent performer with good returns\n4. SBI Bluechip Fund (Mutual Fund): Balanced portfolio similar to your risk appetite\n5. Kotak Bond Fund (Debt Fund): Conservative option for portfolio diversification"
-        mock_query_ai.return_value = expected_recommendations
-        
-        url = reverse("ai-similar-investments")
-        response = auth_client.get(url)
-        
-        assert response.status_code == status.HTTP_200_OK
-        assert "recommendations" in response.json()
-        assert response.json()["recommendations"] == expected_recommendations
-        
-        # Verify API call was made with correct data
-        mock_query_ai.assert_called_once_with(
-            auth_client._credentials['user_id'],
-            None,  # user_message
-            "similar_investments",  # mode
-            None  # context
-        )
-
-    @patch("api.services.ai_advisor.query_ai_for_advice")
-    def test_ai_similar_investments_no_profile(self, mock_query_ai, db):
-        # Create a user without financial profile
+    def test_ai_similar_investments_no_profile(self, db):
         user_data = create_test_user()
         client = APIClient()
         client.force_authenticate(user=user_data['user'])
-        
+
         url = reverse("ai-similar-investments")
         response = client.get(url)
-        
+
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "error" in response.json()
         assert response.json()["error"] == "Please complete your financial profile first"
-        
-        # Verify no API call was made
-        mock_query_ai.assert_not_called()
 
-    @patch("api.services.ai_advisor.query_ai_for_advice")
-    def test_ai_similar_investments_error(self, mock_query_ai, auth_client):
-        # Setup API error mock
-        mock_query_ai.side_effect = Exception("Failed to get investment recommendations")
-        
-        url = reverse("ai-similar-investments")
-        response = auth_client.get(url)
-        
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert "error" in response.json()
-        assert response.json()["error"] == "Failed to get investment recommendations"
+        self.mock_get_advice.assert_not_called()

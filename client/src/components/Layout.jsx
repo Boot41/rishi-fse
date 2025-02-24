@@ -54,8 +54,17 @@ function Layout() {
                 to="/investments"
                 className={`flex items-center px-4 py-3 hover:bg-blue-700 transition-colors ${isActive('/investments')}`}
               >
-                <span className="material-icons mr-3">trending_up</span>
+                <span className="material-icons mr-3">show_chart</span>
                 Investments
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/loan-analysis"
+                className={`flex items-center px-4 py-3 hover:bg-blue-700 transition-colors ${isActive('/loan-analysis')}`}
+              >
+                <span className="material-icons mr-3">account_balance</span>
+                Loan Analysis
               </Link>
             </li>
             <li>

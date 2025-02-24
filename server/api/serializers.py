@@ -225,3 +225,13 @@ class AIInsightResponseSerializer(serializers.Serializer):
 
 class AISimilarInvestmentsResponseSerializer(serializers.Serializer):
     recommendations = serializers.CharField(help_text="AI generated similar investment recommendations")
+
+class AILoanAnalysisRequestSerializer(serializers.Serializer):
+    loan_type = serializers.CharField(max_length=50)
+    loan_amount = serializers.DecimalField(max_digits=12, decimal_places=2)
+    interest_rate = serializers.DecimalField(max_digits=5, decimal_places=2)
+    loan_tenure = serializers.IntegerField(min_value=1, max_value=30)
+    existing_loan_emi = serializers.DecimalField(max_digits=12, decimal_places=2, required=False, default=0)
+
+class AILoanAnalysisResponseSerializer(serializers.Serializer):
+    advice = serializers.CharField()

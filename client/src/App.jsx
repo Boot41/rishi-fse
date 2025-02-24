@@ -13,6 +13,7 @@ import ExpenseManagement from "./pages/ExpenseManagement";
 import InvestmentManagement from "./pages/InvestmentManagement";
 import FinancialOnboarding from "./pages/FinancialOnboarding";
 import AIChat from "./pages/AIChat";
+import LoanAnalysis from "./pages/LoanAnalysis";
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -49,6 +50,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/loan-analysis"
+          element={
+            <ProtectedRoute>
+              <LoanAnalysis />
             </ProtectedRoute>
           }
         />

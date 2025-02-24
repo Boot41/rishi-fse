@@ -28,6 +28,7 @@ def get_user_financial_data(user_id):
     Financial Profile for {user.username}:
     Age: {profile.age}
     Monthly Salary: ₹{profile.monthly_salary}
+    Monthly Savings: ₹{profile.monthly_savings}
     Risk Tolerance: {profile.risk_tolerance}
     
     Additional Income:
@@ -40,8 +41,8 @@ def get_user_financial_data(user_id):
     {investment_details if investment_details else "No investment details provided."}
     """
 
-def query_ai_for_advice(user_id, user_message=None, mode="normal", context=None):
-    """Queries AI for financial advice. Supports normal mode, chat mode, and similar investments mode."""
+def query_ai_for_advice(user_id, user_message=None, mode="normal", context=None, loan_details=None):
+    """Queries AI for financial advice. Supports normal mode, chat mode, similar investments mode, and loan mode."""
     api_url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -52,7 +53,7 @@ def query_ai_for_advice(user_id, user_message=None, mode="normal", context=None)
         # Generate financial insights
         financial_data = get_user_financial_data(user_id)
         messages = [
-            {"role": "system", "content": "You are an expert financial advisor specializing in the Indian market. Analyze this user's financial profile and provide personalized recommendations. Format your response as 5 clear, numbered points that start with numbers (1., 2., etc)."},
+            {"role": "system", "content": "You are an expert financial advisor specializing in the Indian market. Analyze this user's financial profile and provide personalized recommendations. Pay special attention to their monthly savings rate and suggest ways to optimize it. Format your response as 5 clear, numbered points that start with numbers (1., 2., etc)."},
             {"role": "user", "content": financial_data + "\n\nProvide 5 key insights and recommendations based on this financial profile."}
         ]
     
@@ -83,12 +84,12 @@ def query_ai_for_advice(user_id, user_message=None, mode="normal", context=None)
 
 {financial_data}
 
-Based on their financial profile, risk tolerance, and current financial situation, recommend 5 suitable investment options for them to start their investment journey.
+Based on their financial profile, risk tolerance, monthly savings capacity, and current financial situation, recommend 5 suitable investment options for them to start their investment journey. Consider suggesting systematic investment plans (SIPs) that align with their monthly savings.
 
 Format your response as follows:
 
 Recommended Investment Strategy:
-[2-3 lines explaining the overall investment approach based on their risk tolerance and financial situation]
+[2-3 lines explaining the overall investment approach based on their risk tolerance, monthly savings, and financial situation]
 
 Investment Recommendations:
 
@@ -173,6 +174,58 @@ Expected returns and key benefits in a single line.
             {"role": "user", "content": prompt}
         ]
     
+    elif mode == "loan":
+        if not loan_details:
+            return "Loan details are required for loan affordability analysis."
+            
+        financial_data = get_user_financial_data(user_id)
+        user = get_object_or_404(User, id=user_id)
+        profile = get_object_or_404(FinancialProfile, user=user)
+        
+        # Calculate total monthly expenses including existing EMIs
+        total_expenses = sum(expense.amount for expense in Expense.objects.filter(user=user))
+        existing_emis = loan_details.get('existing_loan_emi', 0)
+        
+        prompt = f"""You are a financial advisor specializing in loan affordability analysis. 
+
+The user is considering a {loan_details['loan_type']} loan with the following details:
+- **Loan Amount**: ₹{loan_details['loan_amount']}
+- **Interest Rate**: {loan_details['interest_rate']}% per annum
+- **Tenure**: {loan_details['loan_tenure']} years
+
+The user's current financial profile:
+- **Monthly Income**: ₹{profile.monthly_salary}
+- **Monthly Expenses**: ₹{total_expenses}
+- **Existing Loan EMIs**: ₹{existing_emis}
+
+💡 Your task:  
+1️⃣ **Check if the user can afford this loan** based on their income and existing commitments.
+2️⃣ **Calculate the EMI** using the standard formula:  
+   \[
+   EMI = \frac{{P \times r \times (1+r)^n}}{{(1+r)^n - 1}}
+   \]  
+   where:  
+   - **P** = ₹{loan_details['loan_amount']}  
+   - **r** = {loan_details['interest_rate']} / 12 / 100 (monthly interest rate)  
+   - **n** = {loan_details['loan_tenure']} × 12 (number of months)  
+3️⃣ **Compute Debt-to-Income Ratio (DTI)**:  
+   \[
+   DTI = \frac{{(\text{{Existing EMI}} + \text{{New EMI}})}}{{{{\text{{Monthly Income}}}} \times 100}}
+   \]  
+   - If **DTI > 40%**, advise the user to reconsider.  
+   - If **DTI is reasonable**, confirm affordability.  
+4️⃣ **Give personalized recommendations** to improve loan affordability:
+   - Suggest a **lower loan amount or extended tenure** if EMI is too high.
+   - Recommend **making a prepayment** if the user has savings.
+   - Compare interest rates and suggest **cheaper loan options**.
+
+💬 **Provide insights in a conversational tone**, using numbers and clear reasoning."""
+
+        messages = [
+            {"role": "system", "content": "You are a financial advisor specializing in loan affordability analysis. Provide clear, data-driven advice about loan affordability."},
+            {"role": "user", "content": prompt}
+        ]
+    
     payload = {
         "model": "llama-3.3-70b-versatile",
         "messages": messages,
@@ -185,6 +238,6 @@ Expected returns and key benefits in a single line.
     # Extract AI response
     return ai_response.get("choices", [{}])[0].get("message", {}).get("content", "No response from AI.")
 
-def get_financial_advice(user_id, mode="normal", user_message=None, context=None):
+def get_financial_advice(user_id, mode="normal", user_message=None, context=None, loan_details=None):
     """Handles financial insights (normal mode) or user chat (chat mode)."""
-    return query_ai_for_advice(user_id, user_message, mode, context)
+    return query_ai_for_advice(user_id, user_message, mode, context, loan_details)
