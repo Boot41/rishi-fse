@@ -79,16 +79,41 @@ def query_ai_for_advice(user_id, user_message=None, mode="normal", context=None)
         investments = Investment.objects.filter(user=user_id)
         
         if not investments:
-            return {
-                "recommendations": "You currently have no investments. Here are some recommendations based on your risk profile:\n\n" +
-                "1. Start with Index Funds\nLow-risk entry point with market-matching returns.\n\n" +
-                "2. Government Bonds\nStable returns with government backing.\n\n" +
-                "3. Corporate Fixed Deposits\nHigher returns than savings with moderate risk.\n\n" +
-                "4. Blue-chip Stocks\nEstablished companies with stable growth.\n\n" +
-                "5. Balanced Mutual Funds\nDiversified portfolio with mixed risk levels."
-            }
+            prompt = f"""The user currently has no investments in their portfolio.
+
+{financial_data}
+
+Based on their financial profile, risk tolerance, and current financial situation, recommend 5 suitable investment options for them to start their investment journey.
+
+Format your response as follows:
+
+Recommended Investment Strategy:
+[2-3 lines explaining the overall investment approach based on their risk tolerance and financial situation]
+
+Investment Recommendations:
+
+1. Investment Name (Type)
+Expected returns and key benefits in a single line.
+
+[Continue for all 5 recommendations]"""
+
+            messages = [
+                {"role": "system", "content": "You are a financial advisor specializing in creating starter investment portfolios. Focus on providing a balanced mix of investments suitable for beginners while considering their risk tolerance and financial situation."},
+                {"role": "user", "content": prompt}
+            ]
+            
+            return query_ai(messages)
         
-        current_investments = "\n".join([f"- {inv.name} ({inv.investment_type}): ₹{inv.amount_invested}" for inv in investments])
+        # Check if there are any stock investments
+        stock_investments = [inv for inv in investments if inv.investment_type == 'stocks']
+        has_stocks = len(stock_investments) > 0
+        
+        # Create investment list
+        investment_list = "\n".join([
+            f"- {inv.name} ({inv.investment_type}): ₹{inv.amount_invested}" +
+            (f" [Stock Symbol]" if inv.investment_type == 'stocks' else "")
+            for inv in investments
+        ])
         
         # Create a dynamic intro based on current investments
         investment_names = [f"{inv.name} ({inv.investment_type})" for inv in investments]
@@ -99,9 +124,37 @@ def query_ai_for_advice(user_id, user_message=None, mode="normal", context=None)
         else:
             investment_summary = ", ".join(investment_names[:-1]) + f", and {investment_names[-1]}"
         
-        prompt = f"""Based on your current investments in {investment_summary}, I've analyzed your portfolio and suggested similar performing investments that align with your risk tolerance and investment goals.
+        # Create different prompts based on whether there are stocks
+        if has_stocks:
+            prompt = f"""Based on your current investments in {investment_summary}, I'll analyze your stock holdings and suggest similar investments.
 
-{current_investments}
+Current Portfolio:
+{investment_list}
+
+{financial_data}
+
+Instructions:
+1. First, look up and analyze the beta values of the current stock investments in the portfolio
+2. Then, recommend 5 investments that have similar risk profiles to these stocks
+3. For any stock recommendations, include their beta values and how they compare to the current holdings
+4. You may also suggest non-stock investments that have similar risk-return characteristics
+
+Format your response exactly as follows:
+
+Current Stock Analysis:
+[Analyze the beta values of the stocks in the portfolio]
+
+Based on this analysis, here are 5 similar investment opportunities:
+
+1. Investment Name (Type)
+Expected returns, beta value (if stock), and key benefits in a single line.
+
+[Continue for all 5 recommendations]"""
+        else:
+            prompt = f"""Based on your current investments in {investment_summary}, I'll suggest similar investments that align with your risk tolerance and investment goals.
+
+Current Portfolio:
+{investment_list}
 
 {financial_data}
 
@@ -110,21 +163,16 @@ Provide exactly 5 investment recommendations similar to their current portfolio.
 Based on your current portfolio, here are some similar investment opportunities:
 
 1. Investment Name (Type)
-Expected returns and 1-2 key benefits in a single concise line.
+Expected returns and key benefits in a single line.
 
-2. Investment Name (Type)
-Expected returns and 1-2 key benefits in a single concise line.
-
-[Continue for all 5 recommendations]
-
-Keep each recommendation's description to a single line focusing on returns and key benefits only.
-Do not include any additional text or explanations."""
+[Continue for all 5 recommendations]"""
 
         messages = [
-            {"role": "system", "content": "You are a financial advisor specializing in investment recommendations. Provide exactly 5 recommendations in the specified format."},
+            {"role": "system", "content": "You are a financial advisor specializing in investment recommendations. " +
+             ("You can analyze current market data to determine beta values for stocks and suggest similar investments." if has_stocks else "")},
             {"role": "user", "content": prompt}
         ]
-
+    
     payload = {
         "model": "llama-3.3-70b-versatile",
         "messages": messages,

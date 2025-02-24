@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-qn@uoixr3hrbife@xl096r!zvci&y$*x#@qid3=-i7y-hnfny1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
 
 # Application definition
@@ -88,12 +88,12 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',  
-        'NAME': 'carbon_db',
-        'USER': 'carbon_user',
-        'PASSWORD': 'carbon_password',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('DB_NAME', default='carbon_db'),
+        'USER': env('DB_USER', default='carbon_user'),
+        'PASSWORD': env('DB_PASSWORD', default='carbon_password'),
+        'HOST': env('DB_HOST', default='localhost'),
+        'PORT': env('DB_PORT', default='5432'),
         'ATOMIC_REQUESTS': True,  # Enable atomic requests
         'TEST': {
             'NAME': 'test_carbon_db',
