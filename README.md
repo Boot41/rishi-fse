@@ -177,14 +177,9 @@ npm run dev
 ### Backend Tests
 ```bash
 cd server
-python manage.py test
+./test_coverage.sh
 ```
 
-### Frontend Tests
-```bash
-cd client
-npm test
-```
 
 ## 🤝 Contributing
 
