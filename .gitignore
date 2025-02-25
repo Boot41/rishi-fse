@@ -2,6 +2,4 @@ node_modules
 venv
 db.sqlite3
 *.pyc
-.log
-server/logs/app.log
 .env
